@@ -13,6 +13,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
 
 inline fun <reified T> fromJson(input: String): T {
@@ -46,8 +47,8 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                 val kClass = checkNotNull(type.classifier as? KClass<*>) {
                     "Class not provided for object"
                 }
-                val constructor = checkNotNull(kClass.constructors.firstOrNull()) {
-                    "At least one constructor expected for class"
+                val constructor = checkNotNull(kClass.primaryConstructor) {
+                    "Primary constructor expected for class"
                 }
                 val args = constructor.parameters.map { parameter ->
                     val innerKey = checkNotNull(parameter.name) {
@@ -61,11 +62,11 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                             "Required value of field $innerKey is not provided"
                         }
                     } else {
-                        val parameterType = checkNotNull(parameter.type.classifier as? KClass<*>) {
+                        val parameterKClass = checkNotNull(parameter.type.classifier as? KClass<*>) {
                             "Type of field $innerKey is not supported"
                         }
-                        check(value::class.isSubclassOf(parameterType)) {
-                            "Expected type ${parameterType.simpleName} of field $innerKey"
+                        check(value::class.isSubclassOf(parameterKClass)) {
+                            "Expected type ${parameterKClass.simpleName} of field $innerKey"
                         }
                     }
                     value

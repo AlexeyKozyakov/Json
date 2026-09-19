@@ -45,7 +45,7 @@ internal class Parser(
                     when (val token = tokenizer.pop()) {
                         is TokenComma -> continue
                         is TokenClosePar -> break
-                        else -> tokenizer.parsingError("Unexpected token: $token")
+                        else -> tokenizer.parsingError(", or } expected, but got: $token")
                     }
                 }
                 else -> tokenizer.parsingError("Key or } expected, but got: $token")
@@ -69,7 +69,7 @@ internal class Parser(
                     when (val token = tokenizer.pop()) {
                         is TokenComma -> continue
                         is TokenCloseBr -> break
-                        else -> tokenizer.parsingError("Unexpected token: $token")
+                        else -> tokenizer.parsingError(", or ] expected, but got: $token")
                     }
                 }
             }

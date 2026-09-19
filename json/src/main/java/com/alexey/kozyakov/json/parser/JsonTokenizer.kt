@@ -8,16 +8,15 @@ internal class JsonTokenizer(
     private var position = 0
     private var currentToken: Token = TokenStart
 
-    init {
-        advance()
-    }
-
     fun get(): Token {
+        if (currentToken == TokenStart) {
+            advance()
+        }
         return currentToken
     }
 
     fun pop(): Token {
-        val current = currentToken
+        val current = get()
         advance()
         return current
     }
@@ -51,11 +50,9 @@ internal class JsonTokenizer(
             }
             position++
         }
-        if (isEnded()) {
-            currentToken = TokenEnd
-            return
-        }
         currentToken = when {
+            isEnded() -> TokenEnd
+
             currentChar() == '\"' -> {
                 position++
                 val start = position
@@ -138,79 +135,53 @@ internal class JsonTokenizer(
 internal sealed interface Token
 
 internal class TokenString(val value: String) : Token {
-    override fun toString(): String {
-        return "\"$value\""
-    }
+    override fun toString() = "\"$value\""
 }
 
 internal class TokenFloat(val value: Double) : Token {
-    override fun toString(): String {
-        return value.toString()
-    }
+    override fun toString() = value.toString()
 }
 
 internal class TokenInt(val value: Int) : Token {
-    override fun toString(): String {
-        return value.toString()
-    }
+    override fun toString() = value.toString()
 }
 
 internal class TokenBoolean(val value: Boolean) : Token {
-    override fun toString(): String {
-        return value.toString()
-    }
+    override fun toString() = value.toString()
 }
 
 internal object TokenNull : Token {
-    override fun toString(): String {
-        return "null"
-    }
+    override fun toString() = "null"
 }
 
 internal object TokenOpenBr : Token {
-    override fun toString(): String {
-        return "["
-    }
+    override fun toString() = "["
 }
 
 internal object TokenCloseBr : Token {
-    override fun toString(): String {
-        return "]"
-    }
+    override fun toString() = "]"
 }
 
 internal object TokenOpenPar : Token {
-    override fun toString(): String {
-        return "("
-    }
+    override fun toString() = "("
 }
 
 internal object TokenClosePar : Token {
-    override fun toString(): String {
-        return ")"
-    }
+    override fun toString() = ")"
 }
 
 internal object TokenComma : Token {
-    override fun toString(): String {
-        return ","
-    }
+    override fun toString() = ","
 }
 
 internal object TokenColon : Token {
-    override fun toString(): String {
-        return ":"
-    }
+    override fun toString() = ":"
 }
 
 internal object TokenStart : Token {
-    override fun toString(): String {
-        return "start"
-    }
+    override fun toString() = "SOF"
 }
 
 internal object TokenEnd : Token {
-    override fun toString(): String {
-        return "EOF"
-    }
+    override fun toString() = "EOF"
 }

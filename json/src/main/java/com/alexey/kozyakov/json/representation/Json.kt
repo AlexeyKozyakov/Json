@@ -47,4 +47,4 @@ data class JsonBoolean(val value: Boolean) : Json
 /**
  * JsonNull representation
  */
-data object JsonNull : Json { val value = null }
+data object JsonNull : Json

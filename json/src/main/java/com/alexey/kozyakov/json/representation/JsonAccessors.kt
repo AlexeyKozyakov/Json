@@ -3,32 +3,32 @@ package com.alexey.kozyakov.json.representation
 /**
  * Interprets given [Json] as [JsonObject]
  */
-fun Json.obj() = this as JsonObject
+fun Json.obj() = checkNotNull(this as? JsonObject) { "Json object expected" }
 
 /**
  * Interprets given [Json] as [JsonArray] and returns list of [Json] values
  */
-fun Json.array() = (this as JsonArray).value
+fun Json.array() = checkNotNull(this as? JsonArray) { "Json array expected" }.value
 
 /**
  * Interprets given [Json] as [JsonString] and returns string value
  */
-fun Json.string() = (this as JsonString).value
+fun Json.string() = checkNotNull(this as? JsonString) { "String value expected" }.value
 
 /**
  * Interprets given [Json] as [JsonIntNumber] and returns int value
  */
-fun Json.int() = (this as JsonIntNumber).value
+fun Json.int() = checkNotNull(this as? JsonIntNumber) { "Int value expected" }.value
 
 /**
  * Interprets given [Json] as [JsonFloatNumber] and returns float value
  */
-fun Json.float() = (this as JsonFloatNumber).value
+fun Json.float() = checkNotNull(this as? JsonFloatNumber) { "Float value expected" }.value
 
 /**
  * Interprets given [Json] as [JsonBoolean] and returns boolean value
  */
-fun Json.boolean() = (this as JsonBoolean).value
+fun Json.boolean() =  checkNotNull(this as? JsonBoolean) { "Boolean value expected" }.value
 
 /**
  * Interprets given [Json] as [JsonObject] or null.

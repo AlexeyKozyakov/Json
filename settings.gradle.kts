@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "JsonParser"
 include(":json")
+include(":json-reflect")

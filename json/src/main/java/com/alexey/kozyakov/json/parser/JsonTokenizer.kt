@@ -81,7 +81,8 @@ internal class JsonTokenizer(
                     || currentChar() == '-'
                     || currentChar() == '.' -> {
                 val start = position
-                while (!currentChar().isWhitespace()
+                while (!isEnded()
+                    && !currentChar().isWhitespace()
                     && currentChar() != ','
                     && currentChar() != ']'
                     && currentChar() != '}'

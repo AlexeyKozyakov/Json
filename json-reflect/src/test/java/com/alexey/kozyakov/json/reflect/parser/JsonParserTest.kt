@@ -220,6 +220,56 @@ class JsonParserTest {
     }
 
     @Test
+    fun parseWildcardJsonArrayError() {
+        val json = """
+        {
+            "int": 123,
+            "float": 0.123,
+            "ints": [1, null, 3, null]
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val float: Double,
+            val ints: List<*>
+        )
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+
+        Assert.assertEquals("Got unsupported List<*> for key: \"ints\"", exception.message)
+    }
+
+    @Test
+    fun parseJsonArrayWithNullValues() {
+        val json = """
+        {
+            "int": 123,
+            "float": 0.123,
+            "ints": [1, null, 3, null]
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val float: Double,
+            val ints: List<Int?>
+        )
+
+        val expected = Data(
+            int = 123,
+            float = 0.123,
+            ints = listOf(1, null, 3, null)
+        )
+
+        val actual = fromJson<Data>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
     fun parseJsonComplexTwo() {
         data class Course(
             val id: Int,

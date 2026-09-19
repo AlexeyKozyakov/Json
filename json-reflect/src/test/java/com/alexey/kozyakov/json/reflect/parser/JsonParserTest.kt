@@ -356,4 +356,64 @@ class JsonParserTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun parseNestedLists() {
+        data class Data(
+            val id: Int,
+            val name: String
+        )
+
+        val json = """
+            [
+                [
+                    {
+                        "id": 1,
+                        "name": "first"
+                    },
+                    {
+                        "id": 2,
+                        "name": "second"
+                    }
+                ],
+                [
+                    {
+                        "id": 3,
+                        "name": "third"
+                    },
+                    {
+                        "id": 4,
+                        "name": "fourth"
+                    }
+                ]
+            ]
+        """.trimIndent()
+
+        val expected = listOf(
+            listOf(
+                Data(
+                    id = 1,
+                    name = "first"
+                ),
+                Data(
+                    id = 2,
+                    name = "second"
+                )
+            ),
+            listOf(
+                Data(
+                    id = 3,
+                    name = "third"
+                ),
+                Data(
+                    id = 4,
+                    name = "fourth"
+                )
+            )
+        )
+
+        val actual = fromJson<List<List<Data>>>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
 }

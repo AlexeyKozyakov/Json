@@ -39,10 +39,8 @@ internal class Parser(
         while (true) {
             when (val token = tokenizer.pop()) {
                 is TokenClosePar -> break
-                else -> {
-                    if (token !is TokenString) tokenizer.parsingError("Key expected, but got: $token")
-                    val colon = tokenizer.pop()
-                    if (colon != TokenColon) tokenizer.parsingError("Colon expected, but got: $colon")
+                is TokenString -> {
+                    parseToken<TokenColon>() ?: tokenizer.parsingError("Colon expected")
                     value[token.value] = parse()
                     when (val token = tokenizer.pop()) {
                         is TokenComma -> continue
@@ -50,6 +48,7 @@ internal class Parser(
                         else -> tokenizer.parsingError("Unexpected token: $token")
                     }
                 }
+                else -> tokenizer.parsingError("Key or } expected, but got: $token")
             }
         }
         return JsonObject(value = value)

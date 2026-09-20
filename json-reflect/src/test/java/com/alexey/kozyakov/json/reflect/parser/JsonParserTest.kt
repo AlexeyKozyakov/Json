@@ -263,7 +263,10 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("Unsupported primitive type: Float for key: \"float\"", exception.message)
+        Assert.assertEquals(
+            "Unsupported primitive type: Float for key: \"float\"",
+            exception.message
+        )
     }
 
     @Test
@@ -284,7 +287,42 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("Required value for key hello is not provided", exception.message)
+        Assert.assertEquals(
+            "Required value for inner key \"hello\" is not provided",
+            exception.message
+        )
+    }
+
+    @Test
+    fun parseJsonNoValueNestedError() {
+        val json = """
+        {
+            "int": 123,
+            "float": 0.123,
+            "nested": {
+                "int": 1
+            }
+        }
+    """.trimIndent()
+
+        data class Nested(
+            val hello: String,
+            val int: Int
+        )
+
+        data class Data(
+            val int: Int,
+            val float: Double,
+            val nested: Nested
+        )
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+        Assert.assertEquals(
+            "Required value for inner key \"hello\" is not provided for key: \"nested\"",
+            exception.message
+        )
     }
 
     @Test

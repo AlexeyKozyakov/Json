@@ -62,7 +62,7 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                         }
                         if (value == null) {
                             check(parameter.type.isMarkedNullable) {
-                                "Required value for key $innerKey is not provided"
+                                "Required value for inner key \"$innerKey\" is not provided"
                             }
                         }
                         value

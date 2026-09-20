@@ -1,16 +1,10 @@
 package com.alexey.kozyakov.com.alexey.kozyakov.json.parser
 
 import com.alexey.kozyakov.json.parser.parseJson
-import com.alexey.kozyakov.json.representation.JsonArray
-import com.alexey.kozyakov.json.representation.JsonBoolean
-import com.alexey.kozyakov.json.representation.JsonFloatNumber
-import com.alexey.kozyakov.json.representation.JsonIntNumber
-import com.alexey.kozyakov.json.representation.JsonNull
-import com.alexey.kozyakov.json.representation.JsonObject
-import com.alexey.kozyakov.json.representation.JsonString
 import com.alexey.kozyakov.json.representation.array
 import com.alexey.kozyakov.json.representation.boolean
 import com.alexey.kozyakov.json.representation.int
+import com.alexey.kozyakov.json.representation.jsonObj
 import com.alexey.kozyakov.json.representation.string
 import com.alexey.kozyakov.json.representation.stringOrNull
 import org.junit.Assert
@@ -31,15 +25,13 @@ class JsonParserTest {
 
         val actual = parseJson(json)
 
-        val expected = JsonObject(
-            value = mapOf(
-                "hello" to JsonString("world"),
-                "int" to JsonIntNumber(123),
-                "float" to JsonFloatNumber(0.123),
-                "null" to JsonNull,
-                "bool" to JsonBoolean(true)
-            )
-        )
+        val expected = jsonObj {
+            string("hello", "world")
+            int("int", 123)
+            float("float", 0.123)
+            nul("null")
+            boolean("bool", true)
+        }
 
         Assert.assertEquals(expected, actual)
     }
@@ -76,50 +68,36 @@ class JsonParserTest {
 
         val actual = parseJson(json)
 
-        val expected = JsonObject(
-            value = mapOf(
-                "hello" to JsonString("world"),
-                "int" to JsonIntNumber(123),
-                "float" to JsonFloatNumber(0.123),
-                "null" to JsonNull,
-                "bool" to JsonBoolean(true),
-                "array" to JsonArray(
-                    listOf(
-                        JsonObject(
-                            value = mapOf(
-                                "id" to JsonIntNumber(1),
-                                "name" to JsonString("first")
-                            )
-                        ),
-                        JsonObject(
-                            value = mapOf(
-                                "id" to JsonIntNumber(2),
-                                "name" to JsonString("second")
-                            )
-                        ),
-                        JsonObject(
-                            value = mapOf(
-                                "id" to JsonIntNumber(3),
-                                "name" to JsonString("third")
-                            )
-                        )
-                    )
-                ),
-                "object" to JsonObject(
-                    value = mapOf(
-                        "key" to JsonString("value"),
-                        "array" to JsonArray(
-                            listOf(
-                                JsonIntNumber(1),
-                                JsonIntNumber(2),
-                                JsonIntNumber(3),
-                                JsonIntNumber(4)
-                            )
-                        )
-                    )
-                )
-            )
-        )
+        val expected = jsonObj {
+            string("hello", "world")
+            int("int", 123)
+            float("float", 0.123)
+            nul("null")
+            boolean("bool", true)
+            array("array") {
+                obj {
+                    int("id", 1)
+                    string("name", "first")
+                }
+                obj {
+                    int("id", 2)
+                    string("name", "second")
+                }
+                obj {
+                    int("id", 3)
+                    string("name", "third")
+                }
+            }
+            obj("object") {
+                string("key", "value")
+                array("array") {
+                    int(1)
+                    int(2)
+                    int(3)
+                    int(4)
+                }
+            }
+        }
 
         Assert.assertEquals(expected, actual)
     }

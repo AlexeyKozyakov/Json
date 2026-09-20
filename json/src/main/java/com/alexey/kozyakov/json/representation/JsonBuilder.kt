@@ -43,6 +43,13 @@ fun jsonBoolean(value: Boolean): JsonBoolean {
 }
 
 /**
+ * Returns [JsonNull] object.
+ */
+fun jsonNull(): JsonNull {
+    return JsonNull
+}
+
+/**
  * Provides api to build [JsonObject] using dsl.
  */
 class JsonObjectBuilder {
@@ -88,6 +95,13 @@ class JsonObjectBuilder {
      */
     fun boolean(key: String, value: Boolean) {
         values[key] = JsonBoolean(value)
+    }
+
+    /**
+     * Adds [JsonNull] field.
+     */
+    fun nul(key: String) {
+        values[key] = JsonNull
     }
 
     /**
@@ -144,6 +158,13 @@ class JsonArrayBuilder {
      */
     fun boolean(value: Boolean) {
         values += JsonBoolean(value)
+    }
+
+    /**
+     * Adds [JsonNull] to array.
+     */
+    fun nul() {
+        values += JsonNull
     }
 
     /**

@@ -11,12 +11,12 @@ import com.alexey.kozyakov.json.representation.JsonString
 import com.alexey.kozyakov.json.writer.writeJson
 import kotlin.reflect.full.declaredMemberProperties
 
-fun Any?.toJson(): String {
-    val json = toJson(this)
+fun Any?.toJson(omitNulls: Boolean = true): String {
+    val json = toJson(this, omitNulls)
     return writeJson(json)
 }
 
-private fun toJson(value: Any?): Json {
+private fun toJson(value: Any?, omitNulls: Boolean): Json {
     return when (value) {
         is String -> JsonString(value)
 
@@ -29,15 +29,17 @@ private fun toJson(value: Any?): Json {
         null -> JsonNull
 
         is List<*> -> {
-            val values = value.map { item -> toJson(item) }
+            val values = value.map { item -> toJson(item, omitNulls) }
             JsonArray(value = values)
         }
 
         else -> {
             val properties = value::class.declaredMemberProperties
-            val values = properties.associate { property ->
+            val values = mutableMapOf<String, Json>()
+            for (property in properties) {
                 val propertyValue = property.call(value)
-                property.name to toJson(propertyValue)
+                if (propertyValue == null && omitNulls) continue
+                values[property.name] = toJson(propertyValue, omitNulls)
             }
             JsonObject(value = values)
         }

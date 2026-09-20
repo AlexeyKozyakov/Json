@@ -81,8 +81,7 @@ class JsonWriterTest {
             "bool": true,
             "float": 0.123,
             "hello": "world",
-            "int": 123,
-            "nil": null
+            "int": 123
         }
     """.trimIndent()
 
@@ -113,7 +112,6 @@ class JsonWriterTest {
             "float": 0.123,
             "hello": "world",
             "int": 123,
-            "nil": null,
             "obj": {
                 "array": [
                     1,
@@ -242,7 +240,6 @@ class JsonWriterTest {
                             "name": "Some course"
                         },
                         {
-                            "description": null,
                             "id": 8,
                             "name": "Swimming"
                         }
@@ -311,6 +308,30 @@ class JsonWriterTest {
         )
 
         val actual = data.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun writeNullsToJson() {
+        data class Data(
+            val nullable: String?,
+            val nonnull: Int
+        )
+
+        val expected = """
+            {
+                "nonnull": 213,
+                "nullable": null
+            }
+        """.trimIndent()
+
+        val data = Data(
+            nullable = null,
+            nonnull = 213
+        )
+
+        val actual = data.toJson(omitNulls = false)
 
         Assert.assertEquals(expected, actual)
     }

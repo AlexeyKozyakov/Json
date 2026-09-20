@@ -11,7 +11,6 @@ import com.alexey.kozyakov.json.representation.obj
 import com.alexey.kozyakov.json.representation.string
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
@@ -23,16 +22,17 @@ inline fun <reified T> fromJson(input: String): T {
 
 fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     return try {
+        val kClass = checkNotNull(type.classifier as? KClass<*>) { "Class not provided" }
         when {
             json == JsonNull -> if (type.isMarkedNullable) null else error("Nonnull value expected")
 
-            type.classifier == String::class -> json.string()
+            kClass == String::class -> json.string()
 
-            type.classifier == Int::class -> json.int()
+            kClass == Int::class -> json.int()
 
-            type.classifier == Double::class -> json.float()
+            kClass == Double::class -> json.float()
 
-            type.classifier == Boolean::class -> json.boolean()
+            kClass == Boolean::class -> json.boolean()
 
             type.isSubtypeOf(typeOf<List<*>>()) -> {
                 val values = json.array()
@@ -43,30 +43,26 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                 }
             }
 
+            kClass == Byte::class
+                    || kClass == Short::class
+                    || kClass == Long::class
+                    || kClass == Float::class
+                    || kClass == Char::class -> error("Unsupported primitive type: ${kClass.simpleName}")
+
             else -> {
-                val kClass = checkNotNull(type.classifier as? KClass<*>) {
-                    "Class not provided for object"
-                }
                 val constructor = checkNotNull(kClass.primaryConstructor) {
-                    "Primary constructor expected for class"
+                    "Primary constructor of class ${kClass.simpleName} not found"
                 }
                 val args = constructor.parameters.map { parameter ->
                     val innerKey = checkNotNull(parameter.name) {
-                        "Constructor parameter name is required for class"
+                        "Constructor parameter name of class ${kClass.simpleName} is required"
                     }
                     val value = json.obj().value[innerKey]?.let { innerJson ->
                         fromJson(innerJson, parameter.type, key = innerKey)
                     }
                     if (value == null) {
                         check(parameter.type.isMarkedNullable) {
-                            "Required value of field $innerKey is not provided"
-                        }
-                    } else {
-                        val parameterKClass = checkNotNull(parameter.type.classifier as? KClass<*>) {
-                            "Type of field $innerKey is not supported"
-                        }
-                        check(value::class.isSubclassOf(parameterKClass)) {
-                            "Expected type ${parameterKClass.simpleName} of field $innerKey"
+                            "Required value for key $innerKey is not provided"
                         }
                     }
                     value

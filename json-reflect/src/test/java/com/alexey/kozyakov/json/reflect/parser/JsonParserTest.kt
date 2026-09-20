@@ -177,6 +177,96 @@ class JsonParserTest {
     }
 
     @Test
+    fun parseNestedObjectInArrayTypeError() {
+        val json = """
+        {
+            "int": 123,
+            "floats": [ 123.1, 234.2, { "value": 123.4 } ],
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val floats: List<Double>
+        )
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+        Assert.assertEquals("Float value expected for key: \"floats\"", exception.message)
+    }
+
+    @Test
+    fun parseNestedArrayInArrayTypeError() {
+        val json = """
+        {
+            "int": 123,
+            "floats": [ 123.1, 234.2, [ 123.4 ] ],
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val floats: List<Double>
+        )
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+        Assert.assertEquals("Float value expected for key: \"floats\"", exception.message)
+    }
+
+    @Test
+    fun parseNestedObjectInObjectTypeError() {
+        val json = """
+        {
+            "int": 123,
+            "floats": [ 123.0 ],
+            "nested": {
+                "id": 123,
+                "name": { "id": 123 }
+             }
+        }
+    """.trimIndent()
+
+        data class Nested(
+            val id: Int,
+            val name: String
+        )
+
+        data class Data(
+            val int: Int,
+            val floats: List<Double>,
+            val nested: Nested
+        )
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+        Assert.assertEquals("String value expected for key: \"name\"", exception.message)
+    }
+
+    @Test
+    fun parseJsonUnsupportedPrimitiveTypeError() {
+        val json = """
+        {
+            "int": 123,
+            "float": 0.123,
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val float: Float
+        )
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+        Assert.assertEquals("Unsupported primitive type: Float for key: \"float\"", exception.message)
+    }
+
+    @Test
     fun parseJsonNoValueError() {
         val json = """
         {
@@ -194,7 +284,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("Required value of field hello is not provided", exception.message)
+        Assert.assertEquals("Required value for key hello is not provided", exception.message)
     }
 
     @Test

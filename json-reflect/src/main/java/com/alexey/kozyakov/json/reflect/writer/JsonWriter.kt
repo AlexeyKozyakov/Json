@@ -28,10 +28,18 @@ private fun toJson(value: Any?, omitNulls: Boolean): Json {
 
         null -> JsonNull
 
-        is List<*> -> {
+        is Byte,
+        is Short,
+        is Long,
+        is Float,
+        is Char -> error("Unsupported primitive type: ${value::class.simpleName}")
+
+        is Iterable<*> -> {
             val values = value.map { item -> toJson(item, omitNulls) }
             JsonArray(value = values)
         }
+
+        is Sequence<*> -> toJson(value.asIterable(), omitNulls)
 
         else -> {
             val properties = value::class.declaredMemberProperties

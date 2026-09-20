@@ -11,6 +11,7 @@ import com.alexey.kozyakov.json.representation.obj
 import com.alexey.kozyakov.json.representation.string
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
 
@@ -34,14 +35,7 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
 
                 Boolean::class -> json.boolean()
 
-                List::class -> {
-                    val values = json.array()
-                    val valueType = type.arguments.first().type
-                    check(valueType != null) { "Got unsupported List<*>" }
-                    values.map { innerJson ->
-                        fromJson(innerJson, valueType, key)
-                    }
-                }
+                Sequence::class -> listFromJson(json, type, key).asSequence()
 
                 Byte::class,
                 Short::class,
@@ -50,24 +44,11 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                 Char::class -> error("Unsupported primitive type: ${kClass.simpleName}")
 
                 else -> {
-                    val constructor = checkNotNull(kClass.primaryConstructor) {
-                        "Primary constructor of class ${kClass.simpleName} not found"
+                    if (kClass.isSuperclassOf(List::class)) {
+                        listFromJson(json, type, key)
+                    } else {
+                        objectFromJson(json, kClass)
                     }
-                    val args = constructor.parameters.map { parameter ->
-                        val innerKey = checkNotNull(parameter.name) {
-                            "Constructor parameter name of class ${kClass.simpleName} is required"
-                        }
-                        val value = json.obj().value[innerKey]?.let { innerJson ->
-                            fromJson(innerJson, parameter.type, key = innerKey)
-                        }
-                        if (value == null) {
-                            check(parameter.type.isMarkedNullable) {
-                                "Required value for inner key \"$innerKey\" is not provided"
-                            }
-                        }
-                        value
-                    }
-                    constructor.call(*args.toTypedArray())
                 }
             }
         }
@@ -76,6 +57,36 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     } catch (e: Exception) {
         throw ExceptionWrapper(e.message + if (key != null) " for key: \"$key\"" else "", e)
     }
+}
+
+private fun listFromJson(json: Json, type: KType, key: String?): List<Any?> {
+    val values = json.array()
+    val valueType = type.arguments.first().type
+    check(valueType != null) { "Got unsupported List<*>" }
+    return values.map { innerJson ->
+        fromJson(innerJson, valueType, key)
+    }
+}
+
+private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
+    val constructor = checkNotNull(kClass.primaryConstructor) {
+        "Primary constructor of class ${kClass.simpleName} not found"
+    }
+    val args = constructor.parameters.map { parameter ->
+        val innerKey = checkNotNull(parameter.name) {
+            "Constructor parameter name of class ${kClass.simpleName} is required"
+        }
+        val value = json.obj().value[innerKey]?.let { innerJson ->
+            fromJson(innerJson, parameter.type, key = innerKey)
+        }
+        if (value == null) {
+            check(parameter.type.isMarkedNullable) {
+                "Required value for inner key \"$innerKey\" is not provided"
+            }
+        }
+        value
+    }
+    return constructor.call(*args.toTypedArray())
 }
 
 private class ExceptionWrapper(

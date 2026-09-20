@@ -177,6 +177,65 @@ class JsonParserTest {
     }
 
     @Test
+    fun parseJsonArrayToSequence() {
+        val json = """
+        {
+            "int": 123,
+            "floats": [ 123.1, 234.2, 12312.2 ]
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val floats: Sequence<Double>
+        ) {
+            override fun equals(other: Any?): Boolean {
+                if (other !is Data) return false
+                return int == other.int && floats.toList() == other.floats.toList()
+            }
+
+            override fun hashCode(): Int {
+                var result = int
+                result = 31 * result + floats.toList().hashCode()
+                return result
+            }
+        }
+
+        val expected = Data(
+            int = 123,
+            floats = sequenceOf(123.1, 234.2, 12312.2)
+        )
+
+        val actual = fromJson<Data>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun parseJsonArrayToIterable() {
+        val json = """
+        {
+            "int": 123,
+            "floats": [ 123.1, 234.2, 12312.2 ]
+        }
+    """.trimIndent()
+
+        data class Data(
+            val int: Int,
+            val floats: Iterable<Double>
+        )
+
+        val expected = Data(
+            int = 123,
+            floats = listOf(123.1, 234.2, 12312.2)
+        )
+
+        val actual = fromJson<Data>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
     fun parseNestedObjectInArrayTypeError() {
         val json = """
         {

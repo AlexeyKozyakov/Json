@@ -11,7 +11,6 @@ import com.alexey.kozyakov.json.representation.obj
 import com.alexey.kozyakov.json.representation.string
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
 
@@ -22,52 +21,54 @@ inline fun <reified T> fromJson(input: String): T {
 
 fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     return try {
-        val kClass = checkNotNull(type.classifier as? KClass<*>) { "Class not provided" }
-        when {
-            json == JsonNull -> if (type.isMarkedNullable) null else error("Nonnull value expected")
+        if (json == JsonNull) {
+            if (type.isMarkedNullable) null else error("Nonnull value expected")
+        } else {
+            val kClass = checkNotNull(type.classifier as? KClass<*>) { "Class not provided" }
+            when (kClass) {
+                String::class -> json.string()
 
-            kClass == String::class -> json.string()
+                Int::class -> json.int()
 
-            kClass == Int::class -> json.int()
+                Double::class -> json.float()
 
-            kClass == Double::class -> json.float()
+                Boolean::class -> json.boolean()
 
-            kClass == Boolean::class -> json.boolean()
-
-            type.isSubtypeOf(typeOf<List<*>>()) -> {
-                val values = json.array()
-                val valueType = type.arguments.first().type
-                check(valueType != null) { "Got unsupported List<*>" }
-                values.map { innerJson ->
-                    fromJson(innerJson, valueType, key)
-                }
-            }
-
-            kClass == Byte::class
-                    || kClass == Short::class
-                    || kClass == Long::class
-                    || kClass == Float::class
-                    || kClass == Char::class -> error("Unsupported primitive type: ${kClass.simpleName}")
-
-            else -> {
-                val constructor = checkNotNull(kClass.primaryConstructor) {
-                    "Primary constructor of class ${kClass.simpleName} not found"
-                }
-                val args = constructor.parameters.map { parameter ->
-                    val innerKey = checkNotNull(parameter.name) {
-                        "Constructor parameter name of class ${kClass.simpleName} is required"
+                List::class -> {
+                    val values = json.array()
+                    val valueType = type.arguments.first().type
+                    check(valueType != null) { "Got unsupported List<*>" }
+                    values.map { innerJson ->
+                        fromJson(innerJson, valueType, key)
                     }
-                    val value = json.obj().value[innerKey]?.let { innerJson ->
-                        fromJson(innerJson, parameter.type, key = innerKey)
+                }
+
+                Byte::class,
+                Short::class,
+                Long::class,
+                Float::class,
+                Char::class -> error("Unsupported primitive type: ${kClass.simpleName}")
+
+                else -> {
+                    val constructor = checkNotNull(kClass.primaryConstructor) {
+                        "Primary constructor of class ${kClass.simpleName} not found"
                     }
-                    if (value == null) {
-                        check(parameter.type.isMarkedNullable) {
-                            "Required value for key $innerKey is not provided"
+                    val args = constructor.parameters.map { parameter ->
+                        val innerKey = checkNotNull(parameter.name) {
+                            "Constructor parameter name of class ${kClass.simpleName} is required"
                         }
+                        val value = json.obj().value[innerKey]?.let { innerJson ->
+                            fromJson(innerJson, parameter.type, key = innerKey)
+                        }
+                        if (value == null) {
+                            check(parameter.type.isMarkedNullable) {
+                                "Required value for key $innerKey is not provided"
+                            }
+                        }
+                        value
                     }
-                    value
+                    constructor.call(*args.toTypedArray())
                 }
-                constructor.call(*args.toTypedArray())
             }
         }
     } catch (e: ExceptionWrapper) {

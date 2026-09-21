@@ -11,6 +11,9 @@ import com.alexey.kozyakov.json.representation.JsonString
 import com.alexey.kozyakov.json.writer.writeJson
 import kotlin.reflect.full.declaredMemberProperties
 
+/**
+ * Writes value of any type to json string.
+ */
 fun Any?.toJson(omitNulls: Boolean = true): String {
     val json = toJson(this, omitNulls)
     return writeJson(json)

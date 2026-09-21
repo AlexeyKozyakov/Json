@@ -15,6 +15,9 @@ import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
 
+/**
+ * Parses json from [input] string as type [T].
+ */
 inline fun <reified T> fromJson(input: String): T {
     val json = parseJson(input)
     return fromJson(json, typeOf<T>()) as T

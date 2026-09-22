@@ -1,6 +1,6 @@
 # JsonParser
 Lightweight JSON parser and serializer for Kotlin/JVM
-- zero runtime dependencies (except Kotlin standard library)
+- no runtime dependencies beyond the Kotlin standard library
 - Kotlin-first API
 - parse JSON without reflection
 - optional reflection-based serialization
@@ -22,10 +22,10 @@ Features:
 ### json-reflect
 Reflection-based mapper built on top of json
 
-Features:
-- Deserialize Kotlin classes from JSON
-- Serialize Kotlin classes to JSON
-- Supports data classes
+Features
+- reflection-based serialization and deserialization of arbitrary Kotlin classes
+- requires only primary constructor for deserialization
+- sereializes all class properties declared in code
 ## Installation
 ### json
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/artifact/io.github.alexeykozyakov.json/json)
@@ -48,7 +48,7 @@ val json = parseJson("""{"name":"Alexey","age":28}""")
 println(json.string("name"))
 // Alexey
 ```
-## Usage of :json module
+## json module
 ### JSON representation
 The `json` module does not require Kotlin classes. 
 You can manipulate JSON structures directly:
@@ -76,7 +76,7 @@ data class User(
 val json = parseJson("""{"name":"Alex","age":28}""")
 val user = User(name = json.string("name"), age = json.int("age"))
 ```
-## Usage of :json-reflect module
+## :json-reflect module
 ```kotlin
 data class User(
     val name: String,

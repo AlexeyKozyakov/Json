@@ -1,4 +1,4 @@
-# Json
+# JsonParser
 Lightweight JSON parser and serializer for Kotlin/JVM
 - zero runtime dependencies (except Kotlin standard library)
 - Kotlin-first API
@@ -89,7 +89,7 @@ val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
 // Write json to string
 val json = user.toJson()
 ```
-## Why Json?
+## Why JsonParser?
 JsonParser focuses on a simple and Kotlin-friendly API.
 Unlike annotation-based libraries, it allows direct work with JSON representation:
 

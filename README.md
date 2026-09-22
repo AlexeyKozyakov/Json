@@ -3,6 +3,7 @@
 - Kotlin-first API
 - parse JSON without reflection
 - optional reflection-based serialization
+
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](...)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20%2B-purple)](...)
 [![License](https://img.shields.io/github/license/alexeykozyakov/Json)](...)
@@ -77,4 +78,12 @@ val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
 
 // Write json to string
 val json = user.toJson()
+```
+## Why Json parser?
+Json parser focuses on simplicity and a Kotlin-friendly API.
+Unlike annotation-based libraries, you can work directly with JSON representation:
+
+```kotlin
+val json = parseJson(""" "name": "Alexey" """)
+json.string("name")
 ```

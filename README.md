@@ -49,7 +49,7 @@ val json = parseJson("""{"name":"Alex","age":28}""")
 val user = User(name = json.string("name"), age = json.int("age"))
 
 // Build json and write it to string
-writeJson(
+val string = writeJson(
     jsonObj {
         string("name", "Alexey")
         int("age", 28)

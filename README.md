@@ -10,13 +10,13 @@ Lightweight Json parser and serializer for Kotlin/JVM
 [![License](https://img.shields.io/github/license/alexeykozyakov/Json)](...)
 [![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](...)
 ## Modules
-Json parser consists of two independent modules:
+JsonParser is split into two independent artifacts:
 ### json
 Low-level JSON API
 
 Features:
-- Parse JSON into Kotlin JSON representation based on sealed classes
-- Convenient json field getters
+- Parse JSON into a Kotlin representation based on sealed classes
+- Convenient JSON field getters
 - JSON builder DSL
 - Serialize JSON representation back to string
 ### json-reflect
@@ -49,6 +49,23 @@ println(json.string("name"))
 // Alexey
 ```
 ## Usage of :json module
+### JSON representation
+The `json` module does not require Kotlin classes. 
+You can manipulate JSON structures directly:
+
+```kotlin
+val json = jsonObj {
+    string("name", "Alexey")
+    array("scores") {
+        int(100)
+        int(200)
+    }
+}
+
+println(writeJson(json))
+```
+
+### JSON parsing
 ```kotlin
 data class User(
     val name: String,
@@ -58,14 +75,6 @@ data class User(
 // Parse json
 val json = parseJson("""{"name":"Alex","age":28}""")
 val user = User(name = json.string("name"), age = json.int("age"))
-
-// Build json and write it to string
-val string = writeJson(
-    jsonObj {
-        string("name", "Alexey")
-        int("age", 28)
-    }
-)
 ```
 ## Usage of :json-reflect module
 ```kotlin
@@ -80,7 +89,15 @@ val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
 // Write json to string
 val json = user.toJson()
 ```
-## Why Json parser?
-- json parser focuses on simplicity and a Kotlin-friendly API
-- unlike annotation-based libraries, you can work directly with JSON representation
-- for projects that need automatic mapping, use json-reflect
+## Why Json?
+JsonParser focuses on a simple and Kotlin-friendly API.
+Unlike annotation-based libraries, it allows direct work with JSON representation:
+
+```kotlin
+val json = parseJson(input)
+
+val name = json.string("name")
+```
+For automatic mapping between JSON and Kotlin classes, use json-reflect.
+## License
+Apache License 2.0

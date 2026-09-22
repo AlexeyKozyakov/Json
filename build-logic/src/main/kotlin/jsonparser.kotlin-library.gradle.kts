@@ -22,7 +22,7 @@ extensions.configure<MavenPublishBaseExtension> {
         developers {
             developer {
                 id = "alexey-kozyakov"
-                name = "Aleksei Koziakov"
+                name = "Alexey Kozyakov"
             }
         }
 

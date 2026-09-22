@@ -43,8 +43,10 @@ jobs:
         id: version
         shell: bash
         run: |
-          CURRENT_VERSION=$(grep '^version = ' build.gradle.kts \
+          CURRENT_VERSION=$(grep 'version = ' build.gradle.kts \
             | sed -E 's/version = "([^"]+)"/\1/')
+
+          CURRENT_VERSION=$(echo $CURRENT_VERSION | xargs)
 
           echo "Current version: $CURRENT_VERSION"
 
@@ -86,11 +88,11 @@ jobs:
           NEW_VERSION="${{ steps.version.outputs.version }}"
 
           sed -i \
-            "s/^version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" \
+            "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" \
             build.gradle.kts
 
           echo "Updated version:"
-          grep '^version = ' build.gradle.kts
+          grep 'version = ' build.gradle.kts
 
       # -----------------------------------------------
       # Test

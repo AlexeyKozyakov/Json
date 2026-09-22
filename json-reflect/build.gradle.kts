@@ -25,7 +25,7 @@ mavenPublishing {
 }
 
 dependencies {
-    implementation(project(":json"))
-    api(kotlin("reflect"))
+    api(project(":json"))
+    implementation(kotlin("reflect"))
     testImplementation(libs.junit)
 }

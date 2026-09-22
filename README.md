@@ -1,4 +1,4 @@
-# Simple and convinient Json parser and serializer for Kotlin
+# Lightweight Json parser and serializer for Kotlin
 - no runtime dependencies
 - utilizes the conciseness of Kotlin syntax
 - simple parsing and serealizing code

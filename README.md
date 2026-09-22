@@ -76,7 +76,7 @@ data class User(
 val json = parseJson("""{"name":"Alex","age":28}""")
 val user = User(name = json.string("name"), age = json.int("age"))
 ```
-## :json-reflect module
+## json-reflect module
 ```kotlin
 data class User(
     val name: String,

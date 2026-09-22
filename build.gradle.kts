@@ -4,5 +4,5 @@ plugins {
 
 allprojects {
     group = "io.github.alexeykozyakov"
-    version = "0.0.0"
+    version = "1.0.0"
 }

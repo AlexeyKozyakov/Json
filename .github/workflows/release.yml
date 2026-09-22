@@ -99,6 +99,19 @@ jobs:
       - name: Test
         run: ./gradlew clean test
 
+      #------------------------------------------------
+      # Check signing key is correct
+      #------------------------------------------------
+
+      - name: Verify signing key
+        env:
+          SIGNING_KEY: ${{ secrets.MAVEN_SIGNING_KEY }}
+        run: |
+          echo "Key length: ${#SIGNING_KEY}"
+          echo "$SIGNING_KEY" | gpg --batch --import
+          echo "Secret keys:"
+          gpg --list-secret-keys --keyid-format LONG
+
       # -----------------------------------------------
       # Publish all libraries
       # -----------------------------------------------
@@ -106,17 +119,13 @@ jobs:
       - name: Publish to Maven Central
         run: ./gradlew publishAndReleaseToMavenCentral
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: >
-            ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
 
-          ORG_GRADLE_PROJECT_mavenCentralPassword: >
-            ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
 
-          ORG_GRADLE_PROJECT_signingInMemoryKey: >
-            ${{ secrets.MAVEN_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_KEY }}
 
-          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: >
-            ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
 
       # -----------------------------------------------
       # Commit version

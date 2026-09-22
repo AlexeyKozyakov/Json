@@ -7,7 +7,7 @@ Lightweight JSON parser and serializer for Kotlin/JVM
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](...)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.x%2B-purple)](...)
-[![License](https://img.shields.io/github/license/alexeykozyakov/Json)](...)
+[![License](https://img.shields.io/github/license/AlexeyKozyakov/Json)](...)
 [![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](...)
 ## Modules
 JsonParser is split into two independent artifacts:

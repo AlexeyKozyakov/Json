@@ -80,10 +80,10 @@ val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
 val json = user.toJson()
 ```
 ## Why Json parser?
-Json parser focuses on simplicity and a Kotlin-friendly API.
-Unlike annotation-based libraries, you can work directly with JSON representation:
-
+- json parser focuses on simplicity and a Kotlin-friendly API
+- unlike annotation-based libraries, you can work directly with JSON representation:
 ```kotlin
 val json = parseJson(""" "name": "Alexey" """)
 json.string("name")
 ```
+- for projects that need automatic mapping, use json-reflect

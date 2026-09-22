@@ -3,6 +3,6 @@ plugins {
 }
 
 allprojects {
-    group = "io.github.alexeykozyakov"
-    version = "1.0.0"
+    group = "io.github.alexeykozyakov.json"
+    version = "0.0.0"
 }

@@ -3,6 +3,10 @@
 - utilizes the conciseness of Kotlin syntax
 - simple parsing and serializing code
 - optional reflection support
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](...)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20%2B-purple)](...)
+[![License](https://img.shields.io/github/license/alexeykozyakov/Json)](...)
+[![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](...)
 ## Modules
 JsonParser consists of two independent modules:
 ### json

@@ -1,6 +1,6 @@
 # Json
 Lightweight Json parser and serializer for Kotlin/JVM
-- zero runtime dependencies
+- zero runtime dependencies (except Kotlin standard library)
 - Kotlin-first API
 - parse JSON without reflection
 - optional reflection-based serialization

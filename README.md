@@ -15,10 +15,10 @@ JsonParser is split into two independent artifacts:
 Low-level JSON API
 
 Features:
-- Parse JSON into a Kotlin representation based on sealed classes
-- Convenient JSON field getters
+- parse JSON into a Kotlin representation based on sealed classes
+- convenient JSON field getters
 - JSON builder DSL
-- Serialize JSON representation back to string
+- serialize JSON representation back to string
 ### json-reflect
 Reflection-based mapper built on top of json
 

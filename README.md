@@ -10,7 +10,7 @@
 [![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](...)
 ## Modules
 Json parser consists of two independent modules:
-### :json
+### json
 Low-level JSON API
 
 Features:
@@ -18,7 +18,7 @@ Features:
 - Convenient json field getters
 - JSON builder DSL
 - Serialize JSON representation back to string
-### :json-reflect
+### json-reflect
 Reflection-based mapper built on top of json
 
 Features:

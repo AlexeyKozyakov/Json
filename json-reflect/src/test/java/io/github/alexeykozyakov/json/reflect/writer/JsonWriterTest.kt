@@ -327,7 +327,7 @@ class JsonWriterTest {
 
         val data = Data(
             nullable = null,
-            nonnull = 212
+            nonnull = 213
         )
 
         val actual = data.toJson(omitNulls = false)

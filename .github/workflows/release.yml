@@ -1,0 +1,170 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Version increment"
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # -----------------------------------------------
+      # Calculate new version
+      # -----------------------------------------------
+
+      - name: Calculate version
+        id: version
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(grep '^version = ' build.gradle.kts \
+            | sed -E 's/version = "([^"]+)"/\1/')
+
+          echo "Current version: $CURRENT_VERSION"
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          case "${{ inputs.release_type }}" in
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            *)
+              echo "Unknown release type"
+              exit 1
+              ;;
+          esac
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+          echo "New version: $NEW_VERSION"
+
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------
+      # Update version
+      # -----------------------------------------------
+
+      - name: Update version
+        run: |
+          CURRENT_VERSION="${{ steps.version.outputs.current_version }}"
+          NEW_VERSION="${{ steps.version.outputs.version }}"
+
+          sed -i \
+            "s/^version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" \
+            build.gradle.kts
+
+          echo "Updated version:"
+          grep '^version = ' build.gradle.kts
+
+      # -----------------------------------------------
+      # Test
+      # -----------------------------------------------
+
+      - name: Test
+        run: ./gradlew clean test
+
+      # -----------------------------------------------
+      # Publish all libraries
+      # -----------------------------------------------
+
+      - name: Publish to Maven Central
+        run: ./gradlew publishAndReleaseToMavenCentral
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: >
+            ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+
+          ORG_GRADLE_PROJECT_mavenCentralPassword: >
+            ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+
+          ORG_GRADLE_PROJECT_signingInMemoryKey: >
+            ${{ secrets.MAVEN_SIGNING_KEY }}
+
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: >
+            ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+
+      # -----------------------------------------------
+      # Commit version
+      # -----------------------------------------------
+
+      - name: Commit version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add build.gradle.kts
+
+          git commit -m "Release $VERSION"
+
+      # -----------------------------------------------
+      # Create tag
+      # -----------------------------------------------
+
+      - name: Create tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          git tag "v$VERSION"
+
+      # -----------------------------------------------
+      # Push commit and tag
+      # -----------------------------------------------
+
+      - name: Push release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          git push origin HEAD:main
+          git push origin "v$VERSION"
+
+      # -----------------------------------------------
+      # GitHub Release
+      # -----------------------------------------------
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --generate-notes

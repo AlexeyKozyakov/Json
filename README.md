@@ -49,11 +49,12 @@ val json = parseJson("""{"name":"Alex","age":28}""")
 val user = User(name = json.string("name"), age = json.int("age"))
 
 // Build json and write it to string
-val json = jsonObj {
-    string("name", "Alexey")
-    int("age", 28)
-}
-writeJson(json)
+writeJson(
+    jsonObj {
+        string("name", "Alexey")
+        int("age", 28)
+    }
+)
 ```
 ## Usage of :json-reflect module
 ```kotlin

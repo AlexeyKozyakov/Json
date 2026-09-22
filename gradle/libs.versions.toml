@@ -1,9 +1,11 @@
 [versions]
 junit = "4.13.2"
 jetbrainsKotlinJvm = "2.4.20"
+vanniktechMavenPublish = "0.37.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+vanniktech-maven-publish-plugin = { group = "com.vanniktech.maven.publish", name = "com.vanniktech.maven.publish.gradle.plugin", version.ref = "vanniktechMavenPublish" }
 
 [plugins]
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }

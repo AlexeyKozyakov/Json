@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    id("jsonparser.kotlin-library")
     alias(libs.plugins.jetbrains.kotlin.jvm)
 }
 java {
@@ -12,8 +13,19 @@ kotlin {
     }
 }
 
+mavenPublishing {
+    coordinates(
+        artifactId = "json-reflect"
+    )
+
+    pom {
+        name = "Json Reflect"
+        description = "Extended version of kotlin JSON parser which uses reflection under the hood"
+    }
+}
+
 dependencies {
     implementation(project(":json"))
-    implementation(kotlin("reflect"))
+    api(kotlin("reflect"))
     testImplementation(libs.junit)
 }

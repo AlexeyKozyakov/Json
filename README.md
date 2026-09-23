@@ -100,3 +100,6 @@ val name = json.string("name")
 For automatic mapping between JSON and Kotlin classes, use json-reflect.
 ## License
 Apache License 2.0
+## Documentation
+API documentation:
+https://alexeykozyakov.github.io/Json/

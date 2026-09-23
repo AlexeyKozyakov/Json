@@ -5,9 +5,9 @@ Lightweight JSON parser and serializer for Kotlin/JVM
 - parse JSON without reflection
 - optional reflection-based serialization
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](...)
-[![License](https://img.shields.io/github/license/AlexeyKozyakov/Json)](...)
-[![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](...)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/namespace/io.github.alexeykozyakov.json)
+[![License](https://img.shields.io/github/license/AlexeyKozyakov/Json)](https://github.com/AlexeyKozyakov/Json/blob/main/LICENSE)
+[![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](https://github.com/AlexeyKozyakov/Json/actions/workflows/test.yml)
 ## Modules
 JsonParser is split into two independent artifacts:
 ### json

@@ -12,7 +12,6 @@ import kotlin.reflect.full.declaredMemberProperties
 
 /**
  * Writes value of type T to JSON string.
- * @param omitNulls enables omitting of null properties during class serialization.
  *
  * T can be one of the following:
  *
@@ -20,11 +19,13 @@ import kotlin.reflect.full.declaredMemberProperties
  *
  * T <- null
  *
- * T <- Iterable<T>
+ * T <- Iterable<T>, Collection<T>, List<T>
  *
  * T <- Sequence<T>
  *
  * T <- class { val t1: T1, val t2: T2, ... }
+ *
+ * @param omitNulls enables omitting of null properties during class serialization.
  */
 fun Any?.toJson(omitNulls: Boolean = true): String {
     val json = toJson(this, omitNulls)

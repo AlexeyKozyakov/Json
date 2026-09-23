@@ -334,4 +334,27 @@ class JsonWriterTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    private enum class Values {
+        One,
+        Two,
+        Three
+    }
+
+    @Test
+    fun writeEnum() {
+        data class Data(val value: Values)
+
+        val expected = """
+            {
+                "value": "Two"
+            }
+        """.trimIndent()
+
+        val data = Data(value = Values.Two)
+
+        val actual = data.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
 }

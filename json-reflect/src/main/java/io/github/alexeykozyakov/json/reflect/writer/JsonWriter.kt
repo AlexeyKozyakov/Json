@@ -1,5 +1,6 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
+import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
@@ -15,7 +16,7 @@ import kotlin.reflect.full.declaredMemberProperties
  *
  * T can be one of the following:
  *
- * T <- String, Number, Boolean
+ * T <- String, Number, Boolean, Enum
  *
  * T <- null
  *
@@ -40,6 +41,8 @@ private fun toJson(value: Any?, omitNulls: Boolean): Json {
 
         is Boolean -> JsonBoolean(value)
 
+        is Enum<*> -> JsonString(value.name)
+
         null -> JsonNull
 
         is Char -> error("Unsupported primitive type Char")
@@ -55,7 +58,7 @@ private fun toJson(value: Any?, omitNulls: Boolean): Json {
             val properties = value::class.declaredMemberProperties
             val values = mutableMapOf<String, Json>()
             for (property in properties) {
-                val propertyValue = property.call(value)
+                val propertyValue = property.allowAccessAndCall(value)
                 if (propertyValue == null && omitNulls) continue
                 values[property.name] = toJson(propertyValue, omitNulls)
             }

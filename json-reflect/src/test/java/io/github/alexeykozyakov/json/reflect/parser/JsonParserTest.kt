@@ -652,4 +652,44 @@ class JsonParserTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    private enum class Values {
+        One,
+        Two,
+        Three
+    }
+
+    @Test
+    fun parseEnum() {
+        data class Data(val value: Values)
+
+        val json = """
+            {
+                "value": "Two"
+            }
+        """.trimIndent()
+
+        val expected = Data(value = Values.Two)
+
+        val actual = fromJson<Data>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun parseUndefinedEnumValue() {
+        data class Data(val value: Values)
+
+        val json = """
+            {
+                "value": "Tw"
+            }
+        """.trimIndent()
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Data>(json)
+        }
+
+        Assert.assertEquals("Undefined enum constant Tw for key: \"value\"", exception.message)
+    }
 }

@@ -11,12 +11,16 @@ import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.accessors.short
 import io.github.alexeykozyakov.json.accessors.string
 import io.github.alexeykozyakov.json.parser.parseJson
+import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonNull
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.typeOf
 
 /**
@@ -25,7 +29,7 @@ import kotlin.reflect.typeOf
  *
  * T can be one of the following:
  *
- * T <- String, Number, Boolean
+ * T <- String, Number, Boolean, Enum
  *
  * T <- T?
  *
@@ -68,10 +72,12 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                 Sequence::class -> listFromJson(json, type, key).asSequence()
 
                 else -> {
-                    if (kClass.isSuperclassOf(List::class)) {
-                        listFromJson(json, type, key)
-                    } else {
-                        objectFromJson(json, kClass)
+                    when {
+                        kClass.isSuperclassOf(List::class) -> listFromJson(json, type, key)
+
+                        kClass.isSubclassOf(Enum::class) -> enumFromJson(json, kClass)
+
+                        else -> objectFromJson(json, kClass)
                     }
                 }
             }
@@ -89,6 +95,20 @@ private fun listFromJson(json: Json, type: KType, key: String?): List<Any?> {
     check(valueType != null) { "Got unsupported List<*>" }
     return values.map { innerJson ->
         fromJson(innerJson, valueType, key)
+    }
+}
+
+private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
+    val value = json.string()
+    val valueOfFunction = kClass.staticFunctions.first { it.name == "valueOf" }
+    return try {
+        valueOfFunction.allowAccessAndCall(value)!!
+    } catch (e: InvocationTargetException) {
+        if (e.targetException is IllegalArgumentException) {
+            error("Undefined enum constant $value")
+        } else {
+            throw e
+        }
     }
 }
 
@@ -110,7 +130,7 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
         }
         value
     }
-    return constructor.call(*args.toTypedArray())
+    return constructor.allowAccessAndCall(*args.toTypedArray())
 }
 
 private class ExceptionWrapper(

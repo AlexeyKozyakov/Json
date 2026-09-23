@@ -114,10 +114,17 @@ class JsonObjectBuilder {
     }
 
     /**
+     * Adds field with preconstructed [Json] value.
+     */
+    fun json(key: String, value: Json) {
+        values[key] = value
+    }
+
+    /**
      * Builds constructed [JsonObject].
      */
     fun build(): JsonObject {
-        return JsonObject(values)
+        return JsonObject(values.toMap())
     }
 }
 
@@ -177,9 +184,16 @@ class JsonArrayBuilder {
     }
 
     /**
+     * Adds preconstructed [Json] value to array.
+     */
+    fun json(value: Json) {
+        values += value
+    }
+
+    /**
      * Builds constructed [JsonArray].
      */
     fun build(): JsonArray {
-        return JsonArray(values)
+        return JsonArray(values.toList())
     }
 }

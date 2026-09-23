@@ -172,7 +172,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("String value expected for key: \"hello\"", exception.message)
+        Assert.assertEquals("JsonString expected but was JsonIntNumber for key: \"hello\"", exception.message)
     }
 
     @Test
@@ -251,7 +251,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("Float value expected for key: \"floats\"", exception.message)
+        Assert.assertEquals("JsonFloatNumber expected but was JsonObject for key: \"floats\"", exception.message)
     }
 
     @Test
@@ -271,7 +271,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("Float value expected for key: \"floats\"", exception.message)
+        Assert.assertEquals("JsonFloatNumber expected but was JsonArray for key: \"floats\"", exception.message)
     }
 
     @Test
@@ -301,7 +301,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("String value expected for key: \"name\"", exception.message)
+        Assert.assertEquals("JsonString expected but was JsonObject for key: \"name\"", exception.message)
     }
 
     @Test

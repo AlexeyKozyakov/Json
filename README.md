@@ -6,8 +6,9 @@ Lightweight JSON parser and serializer for Kotlin/JVM
 - optional reflection-based serialization
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/namespace/io.github.alexeykozyakov.json)
-[![License](https://img.shields.io/github/license/AlexeyKozyakov/Json)](https://github.com/AlexeyKozyakov/Json/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/AlexeyKozyakov/Json)](https://github.com/AlexeyKozyakov/Json/releases)
 [![Build](https://github.com/alexeykozyakov/Json/actions/workflows/test.yml/badge.svg)](https://github.com/AlexeyKozyakov/Json/actions/workflows/test.yml)
+[![License](https://img.shields.io/github/license/AlexeyKozyakov/Json)](https://github.com/AlexeyKozyakov/Json/blob/main/LICENSE)
 ## Modules
 JsonParser is split into two independent artifacts:
 ### json
@@ -22,9 +23,9 @@ Features:
 Reflection-based mapper built on top of json
 
 Features
-- reflection-based serialization and deserialization of arbitrary Kotlin classes
-- requires only primary constructor for deserialization
-- sereializes all class properties declared in code
+- reflection-based serialization and deserialization of Kotlin classes
+- deserialization uses the primary constructor
+- serializes all class properties declared in code
 ## Installation
 ### json
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/artifact/io.github.alexeykozyakov.json/json)
@@ -88,7 +89,7 @@ val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
 // Write json to string
 val json = user.toJson()
 ```
-## Why JsonParser?
+## Design goals
 JsonParser focuses on a simple and Kotlin-friendly API.
 Unlike annotation-based libraries, it allows direct work with JSON representation:
 
@@ -102,4 +103,4 @@ For automatic mapping between JSON and Kotlin classes, use json-reflect.
 Apache License 2.0
 ## Documentation
 API documentation:
-https://alexeykozyakov.github.io/Json/
+[https://alexeykozyakov.github.io/Json/](https://alexeykozyakov.github.io/Json/)

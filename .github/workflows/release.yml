@@ -181,7 +181,3 @@ jobs:
           gh release create "v$VERSION" \
             --title "v$VERSION" \
             --generate-notes
-
-  docs:
-    needs: release
-    uses: ./.github/workflows/docs.yml

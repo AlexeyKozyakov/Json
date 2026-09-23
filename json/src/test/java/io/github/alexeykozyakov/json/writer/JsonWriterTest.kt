@@ -295,4 +295,21 @@ class JsonWriterTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun writeCharactersWithEscaping() {
+        val json = jsonObj {
+            string("string", "123\\12\"\t\n")
+        }
+
+        val expected = """
+            {
+                "string": "123\\12\"\t\n"
+            }
+            """.trimIndent()
+
+        val actual = writeJson(json)
+
+        Assert.assertEquals(expected, actual)
+    }
 }

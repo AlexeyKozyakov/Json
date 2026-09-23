@@ -25,12 +25,94 @@ internal class JsonTokenizer(
         error("Parsing error at position ${line + 1}:${errorPosition - lineStart + 1} $message")
     }
 
-    private fun isEnded(): Boolean {
-        return position >= input.length
+    private fun advance() {
+        skipWhitespaces()
+
+        if (isEnded()) {
+            currentToken = TokenEnd
+            return
+        }
+
+        currentToken = when (currentChar()) {
+            '\"' -> {
+                val string = parseStringLiteral()
+                TokenString(value = string)
+            }
+
+            't' -> {
+                expectString("true")
+                TokenBoolean(value = true)
+            }
+
+            'f' -> {
+                expectString("false")
+                TokenBoolean(value = false)
+            }
+
+            'n' -> {
+                expectString("null")
+                TokenNull
+            }
+
+            '{' -> {
+                position++
+                TokenOpenPar
+            }
+
+            '}' -> {
+                position++
+                TokenClosePar
+            }
+
+            '[' -> {
+                position++
+                TokenOpenBr
+            }
+
+            ']' -> {
+                position++
+                TokenCloseBr
+            }
+
+            ':' -> {
+                position++
+                TokenColon
+            }
+
+            ',' -> {
+                position++
+                TokenComma
+            }
+
+            else -> if (currentChar().isDigit() || currentChar() == '-' || currentChar() == '.') {
+                val start = position
+                when (val number = parseNumber()) {
+                    is Int -> TokenInt(value = number)
+                    is Double -> TokenFloat(value = number)
+                    else -> parsingError("Unsupported numeric value: $number", start)
+                }
+            } else {
+                parsingError("Unexpected character: ${currentChar()}")
+            }
+        }
+    }
+
+    private fun skipWhitespaces() {
+        while (!isEnded() && currentChar().isWhitespace()) {
+            if (currentChar() == '\n') {
+                line++
+                lineStart = position + 1
+            }
+            position++
+        }
     }
 
     private fun currentChar(): Char {
         return input[position]
+    }
+
+    private fun isEnded(): Boolean {
+        return position >= input.length
     }
 
     private fun expectString(str: String) {
@@ -42,94 +124,58 @@ internal class JsonTokenizer(
         if (value != str) parsingError("Expected $str, but got $value", start)
     }
 
-    private fun advance() {
-        while (!isEnded() && currentChar().isWhitespace()) {
-            if (currentChar() == '\n') {
-                line++
-                lineStart = position + 1
+    private fun parseStringLiteral(): String {
+        position++
+        return buildString {
+            while (!isEnded() && currentChar() != '\"') {
+                if (currentChar() == '\\') {
+                    position++
+                    if (isEnded()) parsingError("Unexpected EOF")
+                    when (currentChar()) {
+                        '\"', '\\', '/' -> append(currentChar())
+                        'b' -> append('\b')
+                        'f' -> append(0x0C.toChar())
+                        'n' -> append('\n')
+                        'r' -> append('\r')
+                        't' -> append('\t')
+                        'u' -> {
+                            position++
+                            val hexString = buildString {
+                                var count = 0
+                                while (!isEnded() && count < 4 && currentChar().isHexDigit()) {
+                                    append(currentChar())
+                                    position++
+                                    count++
+                                }
+                            }
+                            position--
+                            append(hexString.toInt(radix = 16).toChar())
+                        }
+                    }
+                } else {
+                    append(currentChar())
+                }
+                position++
             }
+            if (isEnded()) parsingError("Expected \" but EOF reached")
             position++
         }
-        currentToken = when {
-            isEnded() -> TokenEnd
+    }
 
-            currentChar() == '\"' -> {
-                position++
-                val start = position
-                while (!isEnded() && currentChar() != '\"') position++
-                if (isEnded()) parsingError("Expected \" but EOF reached", start)
-                position++
-                TokenString(value = input.substring(start until (position - 1)))
-            }
+    private fun parseNumber(): Number? {
+        val start = position
+        while (!isEnded()
+            && !currentChar().isWhitespace()
+            && currentChar() != ','
+            && currentChar() != ']'
+            && currentChar() != '}'
+        ) position++
+        val value = input.substring(start until position)
+        return value.toIntOrNull() ?: value.toDoubleOrNull()
+    }
 
-            currentChar() == 't' -> {
-                expectString("true")
-                TokenBoolean(value = true)
-            }
-
-            currentChar() == 'f' -> {
-                expectString("false")
-                TokenBoolean(value = false)
-            }
-
-            currentChar() == 'n' -> {
-                expectString("null")
-                TokenNull
-            }
-
-            currentChar().isDigit()
-                    || currentChar() == '-'
-                    || currentChar() == '.' -> {
-                val start = position
-                while (!isEnded()
-                    && !currentChar().isWhitespace()
-                    && currentChar() != ','
-                    && currentChar() != ']'
-                    && currentChar() != '}'
-                ) position++
-                val value = input.substring(start until position)
-                val parsed = value.toIntOrNull() ?: value.toDoubleOrNull()
-                when (parsed) {
-                    is Int -> TokenInt(value = parsed)
-                    is Double -> TokenFloat(value = parsed)
-                    else -> parsingError("Unsupported numeric value: $value", start)
-                }
-            }
-
-            currentChar() == '{' -> {
-                position++
-                TokenOpenPar
-            }
-
-            currentChar() == '}' -> {
-                position++
-                TokenClosePar
-            }
-
-            currentChar() == '[' -> {
-                position++
-                TokenOpenBr
-            }
-
-            currentChar() == ']' -> {
-                position++
-                TokenCloseBr
-            }
-
-            currentChar() == ':' -> {
-                position++
-                TokenColon
-            }
-
-            currentChar() == ',' -> {
-                position++
-                TokenComma
-            }
-
-            else -> {
-                parsingError("Unexpected token: ${currentChar()}")
-            }
-        }
+    private fun Char.isHexDigit(): Boolean {
+        return this in 'a'..'f' || this in 'A'..'F' || this.isDigit()
     }
 }
 

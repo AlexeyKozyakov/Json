@@ -24,7 +24,7 @@ private fun StringBuilder.writeJson(json: Json, pretty: Boolean, level: Int) {
     when (json) {
         is JsonObject -> writeObject(json, pretty, level)
         is JsonArray -> writeArray(json, pretty, level)
-        is JsonString -> append("\"${json.value}\"")
+        is JsonString -> writeString(json)
         is JsonIntNumber -> append(json.value)
         is JsonFloatNumber -> append(json.value)
         is JsonBoolean -> append(json.value)
@@ -64,4 +64,28 @@ private fun StringBuilder.writeArray(json: JsonArray, pretty: Boolean, level: In
     }
     if (pretty) append(indent)
     append(']')
+}
+
+private fun StringBuilder.writeString(json: JsonString) {
+    val escaped = buildString {
+        for (char in json.value) {
+            when (char) {
+                '\"', '\\', '/' -> append("\\$char")
+                '\b' -> append("\\b")
+                0x0C.toChar() -> append("\\f")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> if (char in 0.toChar()..0x001F.toChar()) {
+                    val encoded = char.code
+                        .toString(radix = 16)
+                        .padStart(length = 4, padChar = '0')
+                    append("\\u${encoded}")
+                } else {
+                    append(char)
+                }
+            }
+        }
+    }
+    append("\"$escaped\"")
 }

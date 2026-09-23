@@ -283,4 +283,21 @@ class JsonParserTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun parseJsonStringWithEscapedCharacters() {
+        val json = """
+        {
+            "string": "123\n\t66\u0410\uD83D\uDE00\""
+        }
+    """.trimIndent()
+
+        val actual = parseJson(json)
+
+        val expected = jsonObj {
+            string("string", "123\n\t66А😀\"")
+        }
+
+        Assert.assertEquals(expected, actual)
+    }
 }

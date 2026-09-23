@@ -10,7 +10,8 @@ import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 
 /**
- * Writes [json] to string.
+ * Writes provided [json] to string.
+ *
  * If [pretty] is set to true new lines and whitespaces will be added to output.
  */
 fun writeJson(json: Json, pretty: Boolean = true): String {

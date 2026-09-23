@@ -9,4 +9,5 @@ repositories {
 
 dependencies {
     implementation(libs.vanniktech.maven.publish.plugin)
+    implementation(libs.dokka.plugin)
 }

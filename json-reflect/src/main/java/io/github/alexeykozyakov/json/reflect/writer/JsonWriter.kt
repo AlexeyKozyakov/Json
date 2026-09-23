@@ -12,7 +12,20 @@ import io.github.alexeykozyakov.json.writer.writeJson
 import kotlin.reflect.full.declaredMemberProperties
 
 /**
- * Writes value of any type to json string.
+ * Writes value of type T to JSON string.
+ *
+ *
+ * T can be one of the following:
+ *
+ * T <- String, Int, Double, Boolean
+ *
+ * T <- null
+ *
+ * T <- Iterable<T>
+ *
+ * T <- Sequence<T>
+ *
+ * T <- class { val t1: T1, val t2: T2, ... }
  */
 fun Any?.toJson(omitNulls: Boolean = true): String {
     val json = toJson(this, omitNulls)

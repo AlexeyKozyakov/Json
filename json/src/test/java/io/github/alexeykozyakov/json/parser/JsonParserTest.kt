@@ -1,11 +1,11 @@
 package io.github.alexeykozyakov.json.parser
 
-import io.github.alexeykozyakov.json.representation.array
-import io.github.alexeykozyakov.json.representation.boolean
-import io.github.alexeykozyakov.json.representation.int
-import io.github.alexeykozyakov.json.representation.jsonObj
-import io.github.alexeykozyakov.json.representation.string
-import io.github.alexeykozyakov.json.representation.stringOrNull
+import io.github.alexeykozyakov.json.accessors.array
+import io.github.alexeykozyakov.json.accessors.boolean
+import io.github.alexeykozyakov.json.accessors.int
+import io.github.alexeykozyakov.json.builder.jsonObj
+import io.github.alexeykozyakov.json.accessors.string
+import io.github.alexeykozyakov.json.accessors.stringOrNull
 import org.junit.Assert
 import org.junit.Test
 

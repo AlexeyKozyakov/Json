@@ -1,4 +1,13 @@
-package io.github.alexeykozyakov.json.representation
+package io.github.alexeykozyakov.json.builder
+
+import io.github.alexeykozyakov.json.representation.Json
+import io.github.alexeykozyakov.json.representation.JsonArray
+import io.github.alexeykozyakov.json.representation.JsonBoolean
+import io.github.alexeykozyakov.json.representation.JsonFloatNumber
+import io.github.alexeykozyakov.json.representation.JsonIntNumber
+import io.github.alexeykozyakov.json.representation.JsonNull
+import io.github.alexeykozyakov.json.representation.JsonObject
+import io.github.alexeykozyakov.json.representation.JsonString
 
 /**
  * Builds top-level JsonObject using [JsonObjectBuilder] api.

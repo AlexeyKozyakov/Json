@@ -2,6 +2,7 @@ import com.vanniktech.maven.publish.MavenPublishBaseExtension
 
 plugins {
     id("com.vanniktech.maven.publish")
+    id("org.jetbrains.dokka")
 }
 
 extensions.configure<MavenPublishBaseExtension> {

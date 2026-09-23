@@ -3,12 +3,12 @@ package io.github.alexeykozyakov.json.reflect.parser
 import io.github.alexeykozyakov.json.parser.parseJson
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonNull
-import io.github.alexeykozyakov.json.representation.array
-import io.github.alexeykozyakov.json.representation.boolean
-import io.github.alexeykozyakov.json.representation.float
-import io.github.alexeykozyakov.json.representation.int
-import io.github.alexeykozyakov.json.representation.obj
-import io.github.alexeykozyakov.json.representation.string
+import io.github.alexeykozyakov.json.accessors.array
+import io.github.alexeykozyakov.json.accessors.boolean
+import io.github.alexeykozyakov.json.accessors.float
+import io.github.alexeykozyakov.json.accessors.int
+import io.github.alexeykozyakov.json.accessors.obj
+import io.github.alexeykozyakov.json.accessors.string
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSuperclassOf
@@ -16,7 +16,20 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
 
 /**
- * Parses json from [input] string as type [T].
+ * Parses JSON from [input] string as type [T].
+ *
+ *
+ * T can be one of the following:
+ *
+ * T <- String, Int, Double, Boolean
+ *
+ * T <- T?
+ *
+ * T <- List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *
+ * T <- class(val t1: T1, val t2: T2, ...)
+ *
+ * @throws IllegalStateException if parsing error is occurred
  */
 inline fun <reified T> fromJson(input: String): T {
     val json = parseJson(input)

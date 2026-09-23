@@ -11,7 +11,18 @@ import io.github.alexeykozyakov.json.representation.JsonString
 
 
 /**
- * Parses [Json] from [input] string.
+ * Parses JSON from [input] string.
+ * Returns [Json] sealed interface.
+ *
+ * For example:
+ * parseJson(""" "name": "Alexey", "age": 28 """)
+ * will return [JsonObject] instance which contains
+ * [JsonString] and [JsonIntNumber] in the values map.
+ *
+ * JSON properties can be accessed by json.string("name"), json.int("age")
+ * accessors.
+ *
+ * @throws IllegalStateException if parsing error is occurred
  */
 fun parseJson(input: String): Json {
     val tokenizer = JsonTokenizer(input)

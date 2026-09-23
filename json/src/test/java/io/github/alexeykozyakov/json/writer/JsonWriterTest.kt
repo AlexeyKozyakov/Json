@@ -1,6 +1,6 @@
 package io.github.alexeykozyakov.json.writer
 
-import io.github.alexeykozyakov.json.representation.jsonObj
+import io.github.alexeykozyakov.json.builder.jsonObj
 import org.junit.Assert
 import org.junit.Test
 

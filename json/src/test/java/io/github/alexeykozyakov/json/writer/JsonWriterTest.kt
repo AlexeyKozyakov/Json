@@ -10,7 +10,7 @@ class JsonWriterTest {
         val json = jsonObj {
             string("hello", "world")
             int("int", 123)
-            float("float", 0.123)
+            float("float", 0.123f)
             boolean("bool", true)
         }
         val expected = """
@@ -32,7 +32,7 @@ class JsonWriterTest {
         val json = jsonObj {
             string("hello", "world")
             int("int", 123)
-            float("float", 0.123)
+            double("float", 0.123)
             boolean("bool", true)
             array("array") {
                 obj {
@@ -259,7 +259,7 @@ class JsonWriterTest {
         val json = jsonObj {
             string("hello", "world")
             int("int", 123)
-            float("float", 0.123)
+            float("float", 0.123f)
             boolean("bool", true)
             array("array") {
                 obj {

@@ -3,9 +3,8 @@ package io.github.alexeykozyakov.json.builder
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
-import io.github.alexeykozyakov.json.representation.JsonFloatNumber
-import io.github.alexeykozyakov.json.representation.JsonIntNumber
 import io.github.alexeykozyakov.json.representation.JsonNull
+import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 
@@ -31,17 +30,52 @@ fun jsonString(value: String): JsonString {
 }
 
 /**
- * Builds top-level JsonIntNumber with given [value].
+ * Builds top-level JsonNumber with given [value].
  */
-fun jsonInt(value: Int): JsonIntNumber {
-    return JsonIntNumber(value)
+fun jsonNumber(value: Number): JsonNumber {
+    return JsonNumber(value)
 }
 
 /**
- * Builds top-level JsonFloatNumber with given [value].
+ * Builds top-level JsonNumber with given [Long] [value].
  */
-fun jsonFloat(value: Double): JsonFloatNumber {
-    return JsonFloatNumber(value)
+fun jsonLong(value: Long): JsonNumber {
+    return JsonNumber(value)
+}
+
+/**
+ * Builds top-level JsonNumber with given [Int] [value].
+ */
+fun jsonInt(value: Int): JsonNumber {
+    return JsonNumber(value)
+}
+
+/**
+ * Builds top-level JsonNumber with given [Short] [value].
+ */
+fun jsonShort(value: Short): JsonNumber {
+    return JsonNumber(value)
+}
+
+/**
+ * Builds top-level JsonNumber with given [Byte] [value].
+ */
+fun jsonByte(value: Byte): JsonNumber {
+    return JsonNumber(value)
+}
+
+/**
+ * Builds top-level JsonNumber with given [Double] [value].
+ */
+fun jsonDouble(value: Double): JsonNumber {
+    return JsonNumber(value)
+}
+
+/**
+ * Builds top-level JsonFloatNumber with given [Float] [value].
+ */
+fun jsonFloat(value: Float): JsonNumber {
+    return JsonNumber(value)
 }
 
 /**
@@ -86,17 +120,52 @@ class JsonObjectBuilder {
     }
 
     /**
-     * Adds field of type [JsonIntNumber] with given [value].
+     * Adds field of type [JsonNumber] with given [Number] [value].
      */
-    fun int(key: String, value: Int) {
-        values[key] = JsonIntNumber(value)
+    fun number(key: String, value: Number) {
+        values[key] = JsonNumber(value)
     }
 
     /**
-     * Adds field of type [JsonFloatNumber] with given [value].
+     * Adds field of type [JsonNumber] with given [Long] [value].
      */
-    fun float(key: String, value: Double) {
-        values[key] = JsonFloatNumber(value)
+    fun long(key: String, value: Long) {
+        values[key] = JsonNumber(value)
+    }
+
+    /**
+     * Adds field of type [JsonNumber] with given [Int] [value].
+     */
+    fun int(key: String, value: Int) {
+        values[key] = JsonNumber(value)
+    }
+
+    /**
+     * Adds field of type [JsonNumber] with given [Short] [value].
+     */
+    fun short(key: String, value: Short) {
+        values[key] = JsonNumber(value)
+    }
+
+    /**
+     * Adds field of type [JsonNumber] with given [Byte] [value].
+     */
+    fun byte(key: String, value: Byte) {
+        values[key] = JsonNumber(value)
+    }
+
+    /**
+     * Adds field of type [JsonNumber] with given [Double] [value].
+     */
+    fun double(key: String, value: Double) {
+        values[key] = JsonNumber(value)
+    }
+
+    /**
+     * Adds field of type [JsonNumber] with given [Float] [value].
+     */
+    fun float(key: String, value: Float) {
+        values[key] = JsonNumber(value)
     }
 
     /**
@@ -111,13 +180,6 @@ class JsonObjectBuilder {
      */
     fun nul(key: String) {
         values[key] = JsonNull
-    }
-
-    /**
-     * Adds field with preconstructed [Json] value.
-     */
-    fun json(key: String, value: Json) {
-        values[key] = value
     }
 
     /**
@@ -156,17 +218,52 @@ class JsonArrayBuilder {
     }
 
     /**
-     * Adds to array value of type [JsonIntNumber] with given [value].
+     * Adds to array value of type [JsonNumber] with given [Number] [value].
      */
-    fun int(value: Int) {
-        values += JsonIntNumber(value)
+    fun number(value: Number) {
+        values += JsonNumber(value)
     }
 
     /**
-     * Adds to array value of type [JsonFloatNumber] with given [value].
+     * Adds to array value of type [JsonNumber] with given [Long] [value].
      */
-    fun float(value: Double) {
-        values += JsonFloatNumber(value)
+    fun long(value: Long) {
+        values += JsonNumber(value)
+    }
+
+    /**
+     * Adds to array value of type [JsonNumber] with given [Int] [value].
+     */
+    fun int(value: Int) {
+        values += JsonNumber(value)
+    }
+
+    /**
+     * Adds to array value of type [JsonNumber] with given [Short] [value].
+     */
+    fun short(value: Short) {
+        values += JsonNumber(value)
+    }
+
+    /**
+     * Adds to array value of type [JsonNumber] with given [Byte] [value].
+     */
+    fun byte(value: Byte) {
+        values += JsonNumber(value)
+    }
+
+    /**
+     * Adds to array value of type [JsonNumber] with given [Double] [value].
+     */
+    fun double(value: Double) {
+        values += JsonNumber(value)
+    }
+
+    /**
+     * Adds to array value of type [JsonNumber] with given [Float] [value].
+     */
+    fun float(value: Float) {
+        values += JsonNumber(value)
     }
 
     /**
@@ -181,13 +278,6 @@ class JsonArrayBuilder {
      */
     fun nul() {
         values += JsonNull
-    }
-
-    /**
-     * Adds preconstructed [Json] value to array.
-     */
-    fun json(value: Json) {
-        values += value
     }
 
     /**

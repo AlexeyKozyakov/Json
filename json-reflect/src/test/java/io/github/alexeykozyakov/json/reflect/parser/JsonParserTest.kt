@@ -172,7 +172,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonString expected but was JsonIntNumber for key: \"hello\"", exception.message)
+        Assert.assertEquals("JsonString expected but was JsonNumber for key: \"hello\"", exception.message)
     }
 
     @Test
@@ -251,7 +251,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonFloatNumber expected but was JsonObject for key: \"floats\"", exception.message)
+        Assert.assertEquals("JsonNumber expected but was JsonObject for key: \"floats\"", exception.message)
     }
 
     @Test
@@ -271,7 +271,7 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonFloatNumber expected but was JsonArray for key: \"floats\"", exception.message)
+        Assert.assertEquals("JsonNumber expected but was JsonArray for key: \"floats\"", exception.message)
     }
 
     @Test
@@ -309,20 +309,20 @@ class JsonParserTest {
         val json = """
         {
             "int": 123,
-            "float": 0.123,
+            "char": "c"
         }
     """.trimIndent()
 
         data class Data(
             val int: Int,
-            val float: Float
+            val char: Char
         )
 
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
-            "Unsupported primitive type: Float for key: \"float\"",
+            "Unsupported primitive type Char for key: \"char\"",
             exception.message
         )
     }

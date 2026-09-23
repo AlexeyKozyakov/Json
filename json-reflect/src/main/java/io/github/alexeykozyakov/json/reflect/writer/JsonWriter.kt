@@ -3,9 +3,8 @@ package io.github.alexeykozyakov.json.reflect.writer
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
-import io.github.alexeykozyakov.json.representation.JsonFloatNumber
-import io.github.alexeykozyakov.json.representation.JsonIntNumber
 import io.github.alexeykozyakov.json.representation.JsonNull
+import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 import io.github.alexeykozyakov.json.writer.writeJson
@@ -13,11 +12,11 @@ import kotlin.reflect.full.declaredMemberProperties
 
 /**
  * Writes value of type T to JSON string.
- *
+ * @param omitNulls enables omitting of null properties during class serialization.
  *
  * T can be one of the following:
  *
- * T <- String, Int, Double, Boolean
+ * T <- String, Number, Boolean
  *
  * T <- null
  *
@@ -36,19 +35,13 @@ private fun toJson(value: Any?, omitNulls: Boolean): Json {
     return when (value) {
         is String -> JsonString(value)
 
-        is Int -> JsonIntNumber(value)
-
-        is Double -> JsonFloatNumber(value)
+        is Number -> JsonNumber(value)
 
         is Boolean -> JsonBoolean(value)
 
         null -> JsonNull
 
-        is Byte,
-        is Short,
-        is Long,
-        is Float,
-        is Char -> error("Unsupported primitive type: ${value::class.simpleName}")
+        is Char -> error("Unsupported primitive type Char")
 
         is Iterable<*> -> {
             val values = value.map { item -> toJson(item, omitNulls) }

@@ -3,9 +3,8 @@ package io.github.alexeykozyakov.json.writer
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
-import io.github.alexeykozyakov.json.representation.JsonFloatNumber
-import io.github.alexeykozyakov.json.representation.JsonIntNumber
 import io.github.alexeykozyakov.json.representation.JsonNull
+import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 
@@ -25,8 +24,7 @@ private fun StringBuilder.writeJson(json: Json, pretty: Boolean, level: Int) {
         is JsonObject -> writeObject(json, pretty, level)
         is JsonArray -> writeArray(json, pretty, level)
         is JsonString -> writeString(json)
-        is JsonIntNumber -> append(json.value)
-        is JsonFloatNumber -> append(json.value)
+        is JsonNumber -> append(json.value)
         is JsonBoolean -> append(json.value)
         JsonNull -> append("null")
     }

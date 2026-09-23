@@ -27,7 +27,7 @@ class JsonParserTest {
         val expected = jsonObj {
             string("hello", "world")
             int("int", 123)
-            float("float", 0.123)
+            double("float", 0.123)
             nul("null")
             boolean("bool", true)
         }
@@ -70,7 +70,7 @@ class JsonParserTest {
         val expected = jsonObj {
             string("hello", "world")
             int("int", 123)
-            float("float", 0.123)
+            double("float", 0.123)
             nul("null")
             boolean("bool", true)
             array("array") {

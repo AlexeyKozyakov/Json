@@ -4,7 +4,7 @@ package io.github.alexeykozyakov.json.representation
  * JSON representation based on sealed classes.
  *
  *
- * [Json] -> [JsonObject]|[JsonArray]|[JsonString]|[JsonIntNumber]|[JsonFloatNumber]|[JsonBoolean]|[JsonNull]
+ * [Json] -> [JsonObject]|[JsonArray]|[JsonString]|[JsonNumber]|[JsonBoolean]|[JsonNull]
  *
  * [JsonObject] -> map of [String] to [Json]
  *
@@ -12,9 +12,7 @@ package io.github.alexeykozyakov.json.representation
  *
  * [JsonString] -> [String]
  *
- * [JsonIntNumber] -> [Int]
- *
- * [JsonFloatNumber] -> [Double]
+ * [JsonNumber] -> [Number]
  *
  * [JsonBoolean] -> [Boolean]
  *
@@ -53,24 +51,31 @@ data class JsonString(
 ) : Json
 
 /**
- * JsonNumber of type int representation, contains int value.
+ * JsonNumber representation, contains numeric value.
  */
-data class JsonIntNumber(
+data class JsonNumber(
     /**
-     * JSON int value.
+     * JSON number value.
      */
-    val value: Int
-) : Json
+    val value: Number
+) : Json {
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is JsonNumber) return false
+        if (!value.isFloatingPoint() && !other.value.isFloatingPoint()) {
+            return value.toLong() == other.value.toLong()
+        }
+        return value == other.value
+    }
 
-/**
- * JsonNumber of type float representation, contains floating point value.
- */
-data class JsonFloatNumber(
-    /**
-     * JSON floating point value.
-     */
-    val value: Double
-) : Json
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+    private fun Number.isFloatingPoint(): Boolean {
+        return this is Double || this is Float
+    }
+}
 
 /**
  * JsonNumber of type boolean representation, contains boolean value.

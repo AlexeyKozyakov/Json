@@ -86,11 +86,9 @@ internal class JsonTokenizer(
 
             else -> if (currentChar().isDigit() || currentChar() == '-' || currentChar() == '.') {
                 val start = position
-                when (val number = parseNumber()) {
-                    is Int -> TokenInt(value = number)
-                    is Double -> TokenFloat(value = number)
-                    else -> parsingError("Unsupported numeric value: $number", start)
-                }
+                val number = parseNumber()
+                    ?: parsingError("Unsupported numeric value", start)
+                TokenNumber(value = number)
             } else {
                 parsingError("Unexpected character: ${currentChar()}")
             }
@@ -171,7 +169,7 @@ internal class JsonTokenizer(
             && currentChar() != '}'
         ) position++
         val value = input.substring(start until position)
-        return value.toIntOrNull() ?: value.toDoubleOrNull()
+        return value.toLongOrNull() ?: value.toDoubleOrNull()
     }
 
     private fun Char.isHexDigit(): Boolean {
@@ -185,11 +183,7 @@ internal class TokenString(val value: String) : Token {
     override fun toString() = "\"$value\""
 }
 
-internal class TokenFloat(val value: Double) : Token {
-    override fun toString() = value.toString()
-}
-
-internal class TokenInt(val value: Int) : Token {
+internal class TokenNumber(val value: Number) : Token {
     override fun toString() = value.toString()
 }
 

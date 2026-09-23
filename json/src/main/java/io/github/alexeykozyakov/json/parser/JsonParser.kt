@@ -3,9 +3,8 @@ package io.github.alexeykozyakov.json.parser
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
-import io.github.alexeykozyakov.json.representation.JsonFloatNumber
-import io.github.alexeykozyakov.json.representation.JsonIntNumber
 import io.github.alexeykozyakov.json.representation.JsonNull
+import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 
@@ -17,7 +16,7 @@ import io.github.alexeykozyakov.json.representation.JsonString
  * For example:
  * parseJson(""" "name": "Alexey", "age": 28 """)
  * will return [JsonObject] instance which contains
- * [JsonString] and [JsonIntNumber] in the values map.
+ * [JsonString] and [JsonNumber] in the values map.
  *
  * JSON properties can be accessed by json.string("name"), json.int("age")
  * accessors.
@@ -37,8 +36,7 @@ internal class Parser(
         return parseObject()
             ?: parseArray()
             ?: parseString()
-            ?: parseIntNumber()
-            ?: parseFloatNumber()
+            ?: parseNumber()
             ?: parseBoolean()
             ?: parseNull()
             ?: tokenizer.parsingError("Unexpected token: ${tokenizer.get()}")
@@ -59,6 +57,7 @@ internal class Parser(
                         else -> tokenizer.parsingError(", or } expected, but got: $token")
                     }
                 }
+
                 else -> tokenizer.parsingError("Key or } expected, but got: $token")
             }
         }
@@ -93,14 +92,9 @@ internal class Parser(
         return JsonString(value = token.value)
     }
 
-    private fun parseIntNumber(): JsonIntNumber? {
-        val token = parseToken<TokenInt>() ?: return null
-        return JsonIntNumber(value = token.value)
-    }
-
-    private fun parseFloatNumber(): JsonFloatNumber? {
-        val token = parseToken<TokenFloat>() ?: return null
-        return JsonFloatNumber(value = token.value)
+    private fun parseNumber(): JsonNumber? {
+        val token = parseToken<TokenNumber>() ?: return null
+        return JsonNumber(value = token.value)
     }
 
     private fun parseBoolean(): JsonBoolean? {

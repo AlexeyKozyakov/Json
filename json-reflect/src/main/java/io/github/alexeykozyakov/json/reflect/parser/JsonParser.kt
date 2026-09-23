@@ -1,14 +1,18 @@
 package io.github.alexeykozyakov.json.reflect.parser
 
+import io.github.alexeykozyakov.json.accessors.array
+import io.github.alexeykozyakov.json.accessors.boolean
+import io.github.alexeykozyakov.json.accessors.byte
+import io.github.alexeykozyakov.json.accessors.double
+import io.github.alexeykozyakov.json.accessors.float
+import io.github.alexeykozyakov.json.accessors.int
+import io.github.alexeykozyakov.json.accessors.long
+import io.github.alexeykozyakov.json.accessors.obj
+import io.github.alexeykozyakov.json.accessors.short
+import io.github.alexeykozyakov.json.accessors.string
 import io.github.alexeykozyakov.json.parser.parseJson
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonNull
-import io.github.alexeykozyakov.json.accessors.array
-import io.github.alexeykozyakov.json.accessors.boolean
-import io.github.alexeykozyakov.json.accessors.float
-import io.github.alexeykozyakov.json.accessors.int
-import io.github.alexeykozyakov.json.accessors.obj
-import io.github.alexeykozyakov.json.accessors.string
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSuperclassOf
@@ -21,7 +25,7 @@ import kotlin.reflect.typeOf
  *
  * T can be one of the following:
  *
- * T <- String, Int, Double, Boolean
+ * T <- String, Number, Boolean
  *
  * T <- T?
  *
@@ -45,19 +49,23 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
             when (kClass) {
                 String::class -> json.string()
 
-                Int::class -> json.int()
-
-                Double::class -> json.float()
-
                 Boolean::class -> json.boolean()
 
-                Sequence::class -> listFromJson(json, type, key).asSequence()
+                Long::class -> json.long()
 
-                Byte::class,
-                Short::class,
-                Long::class,
-                Float::class,
-                Char::class -> error("Unsupported primitive type: ${kClass.simpleName}")
+                Short::class -> json.short()
+
+                Byte::class -> json.byte()
+
+                Int::class -> json.int()
+
+                Double::class -> json.double()
+
+                Float::class -> json.float()
+
+                Char::class -> error("Unsupported primitive type Char")
+
+                Sequence::class -> listFromJson(json, type, key).asSequence()
 
                 else -> {
                     if (kClass.isSuperclassOf(List::class)) {

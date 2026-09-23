@@ -43,6 +43,8 @@ dependencies {
 ```
 ## Quick start
 ```kotlin
+import io.github.alexeykozyakov.json.parser.parseJson
+
 val json = parseJson("""{"name":"Alexey","age":28}""")
 
 println(json.string("name"))

@@ -4,6 +4,7 @@ import io.github.alexeykozyakov.json.accessors.array
 import io.github.alexeykozyakov.json.accessors.float
 import io.github.alexeykozyakov.json.accessors.int
 import io.github.alexeykozyakov.json.accessors.string
+import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.representation.Json
@@ -792,5 +793,66 @@ class JsonParserTest {
             "Incorrect type returned from mapper. Required subclass of Custom, but got Another",
             exception.message
         )
+    }
+
+    private sealed interface Shape {
+        data class Rectangle(val width: Int, val height: Int) : Shape
+        data class Circle(val radius: Int) : Shape
+
+        companion object : JsonMapper<Shape> {
+            override fun toJson(value: Shape): Json {
+                return when (value) {
+                    is Rectangle -> jsonObj {
+                        string("type", "rectangle")
+                        int("width", value.width)
+                        int("height", value.height)
+                    }
+
+                    is Circle -> jsonObj {
+                        string("type", "circle")
+                        int("radius", value.radius)
+                    }
+                }
+            }
+
+            override fun fromJson(json: Json): Shape {
+                val type = json.string("type")
+                return when (type) {
+                    "rectangle" -> Rectangle(
+                        width = json.int("width"),
+                        height = json.int("height")
+                    )
+
+                    "circle" -> Circle(radius = json.int("radius"))
+                    else -> error("Unknown shape")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun parseSealedClassesExample() {
+        val json = """
+            [
+                {
+                    "type": "rectangle",
+                    "width": 10,
+                    "height": 20
+                },
+                {
+                    "type": "circle",
+                    "radius": 5
+                }
+            ]
+        """.trimIndent()
+
+        val expected = listOf(
+            Shape.Rectangle(width = 10, height = 20),
+            Shape.Circle(radius = 5)
+        )
+
+        val actual = fromJson<List<Shape>>(json)
+
+        Assert.assertEquals(expected, actual)
     }
 }

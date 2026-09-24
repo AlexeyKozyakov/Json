@@ -3,35 +3,28 @@ package io.github.alexeykozyakov.json.representation
 /**
  * JSON representation based on sealed classes.
  *
- *
- * [Json] -> [JsonObject]|[JsonArray]|[JsonString]|[JsonNumber]|[JsonBoolean]|[JsonNull]
- *
- * [JsonObject] -> map of [String] to [Json]
- *
- * [JsonArray] -> [List] of [Json]
- *
- * [JsonString] -> [String]
- *
- * [JsonNumber] -> [Number]
- *
- * [JsonBoolean] -> [Boolean]
- *
- * [JsonNull] -> null
+ * JSON can be one of the following:
+ *  - object
+ *  - array
+ *  - string
+ *  - number
+ *  - boolean
+ *  - null
  */
 sealed interface Json
 
 /**
- * JsonObject representation. Contains map of Json properties.
+ * JSON object representation. Contains map of object fields.
  */
 data class JsonObject(
     /**
-     * JSON object values map.
+     * JSON object fields map.
      */
     val value: Map<String, Json>
 ) : Json
 
 /**
- * JsonArray representation. Contains list of Json values.
+ * JSON array representation. Contains list of array values.
  */
 data class JsonArray(
     /**
@@ -41,7 +34,7 @@ data class JsonArray(
 ) : Json
 
 /**
- * JsonString representation, contains string value.
+ * JSON string representation, contains string value.
  */
 data class JsonString(
     /**
@@ -51,7 +44,7 @@ data class JsonString(
 ) : Json
 
 /**
- * JsonNumber representation, contains numeric value.
+ * JSON number representation, contains numeric value.
  */
 data class JsonNumber(
     /**
@@ -78,7 +71,7 @@ data class JsonNumber(
 }
 
 /**
- * JsonNumber of type boolean representation, contains boolean value.
+ * JSON boolean representation, contains boolean value.
  */
 data class JsonBoolean(
     /**
@@ -88,6 +81,6 @@ data class JsonBoolean(
 ) : Json
 
 /**
- * JsonNull representation
+ * JSON null representation
  */
 data object JsonNull : Json

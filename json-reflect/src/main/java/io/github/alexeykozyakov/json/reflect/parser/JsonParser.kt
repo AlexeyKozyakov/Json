@@ -29,18 +29,17 @@ import kotlin.reflect.typeOf
 /**
  * Parses JSON from [input] string as type [T].
  *
- *
  * T can be one of the following:
  *
- * T <- String, Number, Boolean, Enum
+ *  - String
+ *  - Number
+ *  - Boolean
+ *  - Enum
+ *  - T?
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - class with primary constructor with args of type T1, T2, ... Tn
  *
- * T <- T?
- *
- * T <- List<T>, Sequence<T>, Iterable<T>, Collection<T>
- *
- * T <- class(val t1: T1, val t2: T2, ...)
- *
- * @throws JsonParsingException if parsing error is occurred
+ * @throws JsonParsingException if parsing error was occurred
  */
 inline fun <reified T> fromJson(input: String): T {
     val json = parseJson(input)
@@ -48,19 +47,19 @@ inline fun <reified T> fromJson(input: String): T {
 }
 
 /**
- * Maps [Json] to type [T].
+ * Maps given [Json] to type [T].
  *
  * T can be one of the following:
  *
- * T <- String, Number, Boolean, Enum
+ *  - String
+ *  - Number
+ *  - Boolean
+ *  - Enum
+ *  - T?
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - class with primary constructor with args of type T1, T2, ... Tn
  *
- * T <- T?
- *
- * T <- List<T>, Sequence<T>, Iterable<T>, Collection<T>
- *
- * T <- class(val t1: T1, val t2: T2, ...)
- *
- * @throws JsonParsingException if mapping error is occurred
+ * @throws JsonParsingException if mapping error was occurred
  */
 inline fun <reified T> fromJsonRepresentation(json: Json): T {
     return fromJson(json, typeOf<T>()) as T

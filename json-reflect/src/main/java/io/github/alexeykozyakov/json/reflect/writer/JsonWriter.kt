@@ -20,15 +20,13 @@ import kotlin.reflect.typeOf
  *
  * T can be one of the following:
  *
- * T <- String, Number, Boolean, Enum
- *
- * T <- null
- *
- * T <- Iterable<T>, Collection<T>, List<T>
- *
- * T <- Sequence<T>
- *
- * T <- class { val t1: T1, val t2: T2, ... }
+ *  - String
+ *  - Number
+ *  - Boolean
+ *  - Enum
+ *  - T?
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - class with properties of type T1, T2, ... Tn
  *
  * @param omitNulls enables omitting of null properties during class serialization.
  *
@@ -44,15 +42,13 @@ inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
  *
  * T can be one of the following:
  *
- * T <- String, Number, Boolean, Enum
- *
- * T <- null
- *
- * T <- Iterable<T>, Collection<T>, List<T>
- *
- * T <- Sequence<T>
- *
- * T <- class { val t1: T1, val t2: T2, ... }
+ *  - String
+ *  - Number
+ *  - Boolean
+ *  - Enum
+ *  - T?
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - class with properties of type T1, T2, ... Tn
  *
  * @param omitNulls enables omitting of null properties during mapping.
  *
@@ -70,7 +66,7 @@ class JsonWritingException(message: String, cause: Exception? = null) :
     IllegalArgumentException(message, cause)
 
 /**
- * Internal function, use [toJson] instead.
+ * Internal function, use [toJson] or [toJsonRepresentation] instead.
  */
 fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
     return when (value) {

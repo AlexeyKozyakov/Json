@@ -10,6 +10,7 @@ import io.github.alexeykozyakov.json.accessors.long
 import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.accessors.short
 import io.github.alexeykozyakov.json.accessors.string
+import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.parser.parseJson
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
@@ -87,10 +88,10 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
                 }
             }
         }
-    } catch (e: ExceptionWrapper) {
+    } catch (e: JsonParsingException) {
         throw e
     } catch (e: Exception) {
-        throw ExceptionWrapper(e.message + if (key != null) " for key: \"$key\"" else "", e)
+        throw JsonParsingException(e.message + if (key != null) " for key: \"$key\"" else "", e)
     }
 }
 
@@ -146,8 +147,3 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
     }
     return constructor.allowAccessAndCall(*args.toTypedArray())
 }
-
-private class ExceptionWrapper(
-    message: String,
-    source: Exception
-) : IllegalStateException(message, source)

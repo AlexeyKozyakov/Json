@@ -4,6 +4,7 @@ import io.github.alexeykozyakov.json.accessors.array
 import io.github.alexeykozyakov.json.accessors.float
 import io.github.alexeykozyakov.json.accessors.int
 import io.github.alexeykozyakov.json.accessors.string
+import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.representation.Json
 import org.junit.Assert
@@ -175,7 +176,7 @@ class JsonParserTest {
             val float: Double
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -257,7 +258,7 @@ class JsonParserTest {
             val floats: List<Double>
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -280,7 +281,7 @@ class JsonParserTest {
             val floats: List<Double>
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -313,7 +314,7 @@ class JsonParserTest {
             val nested: Nested
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -336,7 +337,7 @@ class JsonParserTest {
             val char: Char
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -360,7 +361,7 @@ class JsonParserTest {
             val float: Double
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -392,7 +393,7 @@ class JsonParserTest {
             val nested: Nested
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals(
@@ -417,7 +418,7 @@ class JsonParserTest {
             val ints: List<Int>
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
         Assert.assertEquals("Nonnull value expected for key: \"ints\"", exception.message)
@@ -439,7 +440,7 @@ class JsonParserTest {
             val ints: List<*>
         )
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
 
@@ -704,7 +705,7 @@ class JsonParserTest {
             }
         """.trimIndent()
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Data>(json)
         }
 
@@ -783,7 +784,7 @@ class JsonParserTest {
     fun parseClassesUsingCustomMapperErrorIncorrectMappedType() {
         val json = """{}"""
 
-        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
             fromJson<Custom>(json)
         }
 

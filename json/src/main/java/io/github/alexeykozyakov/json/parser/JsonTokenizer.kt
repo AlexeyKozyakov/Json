@@ -22,7 +22,9 @@ internal class JsonTokenizer(
     }
 
     fun parsingError(message: String, errorPosition: Int = position): Nothing {
-        error("Parsing error at position ${line + 1}:${errorPosition - lineStart + 1} $message")
+        throw JsonParsingException(
+            "Parsing error at position ${line + 1}:${errorPosition - lineStart + 1} $message"
+        )
     }
 
     private fun advance() {

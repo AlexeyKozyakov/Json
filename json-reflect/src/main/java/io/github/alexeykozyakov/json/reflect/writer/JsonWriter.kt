@@ -38,6 +38,13 @@ inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
 }
 
 /**
+ * Exception which can be thrown while JSON writing if
+ * it contains unsupported fields.
+ */
+class JsonWritingException(message: String, cause: Exception? = null) :
+    IllegalArgumentException(message, cause)
+
+/**
  * Internal function, use [toJson] instead.
  */
 fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
@@ -52,16 +59,15 @@ fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
 
         null -> JsonNull
 
-        is Char -> error("Unsupported primitive type Char")
+        is Char -> writingError("Unsupported primitive type Char")
 
         is Iterable<*>, is Sequence<*> -> {
-            val valueType = checkNotNull(type.arguments.first().type) {
-                "Unknown value type of collection"
-            }
+            val valueType = type.arguments.first().type
+                ?: writingError("Unknown value type of collection")
             val values = when (value) {
                 is Iterable<*> -> value.map { item -> toJson(item, valueType, omitNulls) }
                 is Sequence<*> -> value.map { item -> toJson(item, valueType, omitNulls) }.toList()
-                else -> error("Expected Iterable or Sequence")
+                else -> writingError("Expected Iterable or Sequence")
             }
             JsonArray(value = values)
         }
@@ -82,4 +88,8 @@ fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
             }
         }
     }
+}
+
+private fun writingError(message: String): Nothing {
+    throw JsonWritingException(message)
 }

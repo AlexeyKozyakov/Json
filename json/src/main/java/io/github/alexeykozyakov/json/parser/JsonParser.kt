@@ -7,6 +7,7 @@ import io.github.alexeykozyakov.json.representation.JsonNull
 import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
+import javax.xml.transform.Source
 
 
 /**
@@ -21,13 +22,20 @@ import io.github.alexeykozyakov.json.representation.JsonString
  * JSON properties can be accessed by json.string("name"), json.int("age")
  * accessors.
  *
- * @throws IllegalStateException if parsing error is occurred
+ * @throws JsonParsingException if parsing error is occurred
  */
 fun parseJson(input: String): Json {
     val tokenizer = JsonTokenizer(input)
     val parser = Parser(tokenizer)
     return parser.parse()
 }
+
+/**
+ * Exception which can be thrown while JSON parsing if
+ * its syntax or structure is incorrect.
+ */
+class JsonParsingException(message: String, cause: Exception? = null) :
+    IllegalArgumentException(message, cause)
 
 internal class Parser(
     private val tokenizer: JsonTokenizer

@@ -1,5 +1,8 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
+import io.github.alexeykozyakov.json.builder.jsonObj
+import io.github.alexeykozyakov.json.reflect.JsonMapper
+import io.github.alexeykozyakov.json.representation.Json
 import org.junit.Assert
 import org.junit.Test
 
@@ -352,6 +355,73 @@ class JsonWriterTest {
         """.trimIndent()
 
         val data = Data(value = Values.Two)
+
+        val actual = data.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    private sealed interface Data {
+        data object Empty : Data
+        data class IntAndFloat(val int: Int, val float: Float) : Data
+        data class StringAndArray(val str: String, val array: List<Int>) : Data
+
+        companion object : JsonMapper<Data> {
+            override fun toJson(value: Data): Json {
+                return when (value) {
+                    is Empty -> jsonObj {
+                        string("type", "empty")
+                    }
+
+                    is IntAndFloat -> jsonObj {
+                        string("type", "intAndFloat")
+                        int("int", value.int)
+                        float("float", value.float)
+                    }
+
+                    is StringAndArray -> jsonObj {
+                        string("type", "stringAndArray")
+                        string("str", value.str)
+                        array("array") {
+                            value.array.forEach { int(it) }
+                        }
+                    }
+                }
+            }
+
+            override fun fromJson(json: Json): Data = error("Not implemented")
+        }
+    }
+
+    @Test
+    fun writeSealedClassesUsingCustomMapper() {
+        val expected = """
+            [
+                {
+                    "type": "empty"
+                },
+                {
+                    "type": "intAndFloat",
+                    "int": 123,
+                    "float": 66.3
+                },
+                {
+                    "type": "stringAndArray",
+                    "str": "Hello world!",
+                    "array": [
+                        5,
+                        3,
+                        2
+                    ]
+                }
+            ]
+        """.trimIndent()
+
+        val data = listOf(
+            Data.Empty,
+            Data.IntAndFloat(int = 123, float = 66.3f),
+            Data.StringAndArray(str = "Hello world!", array = listOf(5, 3, 2))
+        )
 
         val actual = data.toJson()
 

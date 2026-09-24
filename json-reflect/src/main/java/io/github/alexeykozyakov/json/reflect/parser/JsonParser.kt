@@ -11,7 +11,9 @@ import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.accessors.short
 import io.github.alexeykozyakov.json.accessors.string
 import io.github.alexeykozyakov.json.parser.parseJson
+import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
+import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonNull
 import java.lang.reflect.InvocationTargetException
@@ -44,6 +46,9 @@ inline fun <reified T> fromJson(input: String): T {
     return fromJson(json, typeOf<T>()) as T
 }
 
+/**
+ * Internal function, use [fromJson] instead.
+ */
 fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     return try {
         if (json == JsonNull) {
@@ -113,8 +118,17 @@ private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
 }
 
 private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
+    val mapper = kClass.getCompanionObject() as? JsonMapper<*>
+    if (mapper != null) {
+        val value = mapper::fromJson.allowAccessAndCall(json)
+        check(value::class.isSubclassOf(kClass)) {
+            "Incorrect type returned from mapper. " +
+                    "Required subclass of ${kClass.simpleName}, but got ${value::class.simpleName}"
+        }
+        return value
+    }
     val constructor = checkNotNull(kClass.primaryConstructor) {
-        "Primary constructor of class ${kClass.simpleName} not found"
+        "Primary constructor or JsonMapper of class ${kClass.simpleName} not found"
     }
     val args = constructor.parameters.map { parameter ->
         val innerKey = checkNotNull(parameter.name) {

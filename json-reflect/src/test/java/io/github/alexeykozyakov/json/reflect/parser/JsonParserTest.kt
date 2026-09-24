@@ -1,5 +1,11 @@
 package io.github.alexeykozyakov.json.reflect.parser
 
+import io.github.alexeykozyakov.json.accessors.array
+import io.github.alexeykozyakov.json.accessors.float
+import io.github.alexeykozyakov.json.accessors.int
+import io.github.alexeykozyakov.json.accessors.string
+import io.github.alexeykozyakov.json.reflect.JsonMapper
+import io.github.alexeykozyakov.json.representation.Json
 import org.junit.Assert
 import org.junit.Test
 
@@ -172,7 +178,10 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonString expected but was JsonNumber for key: \"hello\"", exception.message)
+        Assert.assertEquals(
+            "JsonString expected but was JsonNumber for key: \"hello\"",
+            exception.message
+        )
     }
 
     @Test
@@ -251,7 +260,10 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonNumber expected but was JsonObject for key: \"floats\"", exception.message)
+        Assert.assertEquals(
+            "JsonNumber expected but was JsonObject for key: \"floats\"",
+            exception.message
+        )
     }
 
     @Test
@@ -271,7 +283,10 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonNumber expected but was JsonArray for key: \"floats\"", exception.message)
+        Assert.assertEquals(
+            "JsonNumber expected but was JsonArray for key: \"floats\"",
+            exception.message
+        )
     }
 
     @Test
@@ -301,7 +316,10 @@ class JsonParserTest {
         val exception = Assert.assertThrows(IllegalStateException::class.java) {
             fromJson<Data>(json)
         }
-        Assert.assertEquals("JsonString expected but was JsonObject for key: \"name\"", exception.message)
+        Assert.assertEquals(
+            "JsonString expected but was JsonObject for key: \"name\"",
+            exception.message
+        )
     }
 
     @Test
@@ -691,5 +709,87 @@ class JsonParserTest {
         }
 
         Assert.assertEquals("Undefined enum constant Tw for key: \"value\"", exception.message)
+    }
+
+    private sealed interface Data {
+        data object Empty : Data
+        data class IntAndFloat(val int: Int, val float: Float) : Data
+        data class StringAndArray(val str: String, val array: List<Int>) : Data
+
+        companion object : JsonMapper<Data> {
+            override fun toJson(value: Data): Json = error("Not implemented")
+
+            override fun fromJson(json: Json): Data {
+                return when (val type = json.string("type")) {
+                    "empty" -> Empty
+
+                    "intAndFloat" -> IntAndFloat(
+                        int = json.int("int"),
+                        float = json.float("float")
+                    )
+
+                    "stringAndArray" -> StringAndArray(
+                        str = json.string("str"),
+                        array = json.array("array").map { it.int() }
+                    )
+
+                    else -> error("Unknown Data type: $type")
+                }
+            }
+
+        }
+    }
+
+    @Test
+    fun parseSealedClassesUsingCustomMapper() {
+        val json = """
+            [
+                {
+                    "type": "empty"
+                },
+                {
+                    "type": "intAndFloat",
+                    "int": 123,
+                    "float": 66.3
+                },
+                {
+                    "type": "stringAndArray",
+                    "str": "Hello world!",
+                    "array": [5, 3, 2]
+                }
+            ]
+        """.trimIndent()
+
+        val expected = listOf(
+            Data.Empty,
+            Data.IntAndFloat(int = 123, float = 66.3f),
+            Data.StringAndArray(str = "Hello world!", array = listOf(5, 3, 2))
+        )
+
+        val actual = fromJson<List<Data>>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    private class Another
+    private class Custom {
+        companion object : JsonMapper<Another> {
+            override fun toJson(value: Another) = error("Not implemented")
+            override fun fromJson(json: Json) = Another()
+        }
+    }
+
+    @Test
+    fun parseClassesUsingCustomMapperErrorIncorrectMappedType() {
+        val json = """{}"""
+
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fromJson<Custom>(json)
+        }
+
+        Assert.assertEquals(
+            "Incorrect type returned from mapper. Required subclass of Custom, but got Another",
+            exception.message
+        )
     }
 }

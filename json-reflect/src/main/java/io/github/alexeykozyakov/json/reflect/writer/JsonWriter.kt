@@ -1,6 +1,8 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
+import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
+import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
@@ -9,7 +11,9 @@ import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 import io.github.alexeykozyakov.json.writer.writeJson
+import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.typeOf
 
 /**
  * Writes value of type T to JSON string.
@@ -28,12 +32,15 @@ import kotlin.reflect.full.declaredMemberProperties
  *
  * @param omitNulls enables omitting of null properties during class serialization.
  */
-fun Any?.toJson(omitNulls: Boolean = true): String {
-    val json = toJson(this, omitNulls)
+inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
+    val json = toJson(this, typeOf<T>(), omitNulls)
     return writeJson(json)
 }
 
-private fun toJson(value: Any?, omitNulls: Boolean): Json {
+/**
+ * Internal function, use [toJson] instead.
+ */
+fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
     return when (value) {
         is String -> JsonString(value)
 
@@ -47,22 +54,32 @@ private fun toJson(value: Any?, omitNulls: Boolean): Json {
 
         is Char -> error("Unsupported primitive type Char")
 
-        is Iterable<*> -> {
-            val values = value.map { item -> toJson(item, omitNulls) }
+        is Iterable<*>, is Sequence<*> -> {
+            val valueType = checkNotNull(type.arguments.first().type) {
+                "Unknown value type of collection"
+            }
+            val values = when (value) {
+                is Iterable<*> -> value.map { item -> toJson(item, valueType, omitNulls) }
+                is Sequence<*> -> value.map { item -> toJson(item, valueType, omitNulls) }.toList()
+                else -> error("Expected Iterable or Sequence")
+            }
             JsonArray(value = values)
         }
 
-        is Sequence<*> -> toJson(value.asIterable(), omitNulls)
-
         else -> {
-            val properties = value::class.declaredMemberProperties
-            val values = mutableMapOf<String, Json>()
-            for (property in properties) {
-                val propertyValue = property.allowAccessAndCall(value)
-                if (propertyValue == null && omitNulls) continue
-                values[property.name] = toJson(propertyValue, omitNulls)
+            val mapper = type.classifier?.getCompanionObject() as? JsonMapper<*>
+            if (mapper != null) {
+                mapper::toJson.allowAccessAndCall(value)
+            } else {
+                val properties = value::class.declaredMemberProperties
+                val values = mutableMapOf<String, Json>()
+                for (property in properties) {
+                    val propertyValue = property.allowAccessAndCall(value)
+                    if (propertyValue == null && omitNulls) continue
+                    values[property.name] = toJson(propertyValue, property.returnType, omitNulls)
+                }
+                JsonObject(value = values)
             }
-            JsonObject(value = values)
         }
     }
 }

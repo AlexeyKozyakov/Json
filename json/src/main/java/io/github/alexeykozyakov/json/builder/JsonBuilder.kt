@@ -183,6 +183,20 @@ class JsonObjectBuilder {
     }
 
     /**
+     * Adds arbitrary [Json] field.
+     */
+    fun json(key: String, value: Json) {
+        values[key] = value
+    }
+
+    /**
+     * Adds all fields from given [JsonObject].
+     */
+    fun fields(obj: JsonObject) {
+        values += obj.value
+    }
+
+    /**
      * Builds constructed [JsonObject].
      */
     fun build(): JsonObject {
@@ -278,6 +292,13 @@ class JsonArrayBuilder {
      */
     fun nul() {
         values += JsonNull
+    }
+
+    /**
+     * Adds arbitrary [Json] to array.
+     */
+    fun json(json: Json) {
+        values += json
     }
 
     /**

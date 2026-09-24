@@ -1,5 +1,6 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
+import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.representation.Json
@@ -421,6 +422,54 @@ class JsonWriterTest {
             Data.Empty,
             Data.IntAndFloat(int = 123, float = 66.3f),
             Data.StringAndArray(str = "Hello world!", array = listOf(5, 3, 2))
+        )
+
+        val actual = data.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    private sealed interface Shape {
+        data class Rectangle(val width: Int, val height: Int) : Shape
+        data class Circle(val radius: Int) : Shape
+
+        companion object : JsonMapper<Shape> {
+            override fun toJson(value: Shape): Json {
+                return when (value) {
+                    is Rectangle -> jsonObj {
+                        string("type", "rectangle")
+                        fields(value.toJsonRepresentation().obj())
+                    }
+                    is Circle -> jsonObj {
+                        string("type", "circle")
+                        fields(value.toJsonRepresentation().obj())
+                    }
+                }
+            }
+
+            override fun fromJson(json: Json) = error("Not implemented")
+        }
+    }
+
+    @Test
+    fun writeSealedClassesExample() {
+        val expected = """
+            [
+                {
+                    "type": "rectangle",
+                    "height": 20,
+                    "width": 10
+                },
+                {
+                    "type": "circle",
+                    "radius": 5
+                }
+            ]
+        """.trimIndent()
+
+        val data = listOf(
+            Shape.Rectangle(width = 10, height = 20),
+            Shape.Circle(radius = 5)
         )
 
         val actual = data.toJson()

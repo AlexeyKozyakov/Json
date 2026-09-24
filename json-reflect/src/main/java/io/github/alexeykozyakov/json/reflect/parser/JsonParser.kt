@@ -48,7 +48,26 @@ inline fun <reified T> fromJson(input: String): T {
 }
 
 /**
- * Internal function, use [fromJson] instead.
+ * Maps [Json] to type [T].
+ *
+ * T can be one of the following:
+ *
+ * T <- String, Number, Boolean, Enum
+ *
+ * T <- T?
+ *
+ * T <- List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *
+ * T <- class(val t1: T1, val t2: T2, ...)
+ *
+ * @throws JsonParsingException if mapping error is occurred
+ */
+inline fun <reified T> fromJsonRepresentation(json: Json): T {
+    return fromJson(json, typeOf<T>()) as T
+}
+
+/**
+ * Internal function, use [fromJson] or [fromJsonRepresentation] instead.
  */
 fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     return try {

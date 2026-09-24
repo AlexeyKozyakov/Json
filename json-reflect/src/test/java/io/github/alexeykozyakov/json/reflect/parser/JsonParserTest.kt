@@ -800,30 +800,13 @@ class JsonParserTest {
         data class Circle(val radius: Int) : Shape
 
         companion object : JsonMapper<Shape> {
-            override fun toJson(value: Shape): Json {
-                return when (value) {
-                    is Rectangle -> jsonObj {
-                        string("type", "rectangle")
-                        int("width", value.width)
-                        int("height", value.height)
-                    }
-
-                    is Circle -> jsonObj {
-                        string("type", "circle")
-                        int("radius", value.radius)
-                    }
-                }
-            }
+            override fun toJson(value: Shape) = error("Not implemented")
 
             override fun fromJson(json: Json): Shape {
                 val type = json.string("type")
                 return when (type) {
-                    "rectangle" -> Rectangle(
-                        width = json.int("width"),
-                        height = json.int("height")
-                    )
-
-                    "circle" -> Circle(radius = json.int("radius"))
+                    "rectangle" -> fromJsonRepresentation<Rectangle>(json)
+                    "circle" -> fromJsonRepresentation<Circle>(json)
                     else -> error("Unknown shape")
                 }
             }

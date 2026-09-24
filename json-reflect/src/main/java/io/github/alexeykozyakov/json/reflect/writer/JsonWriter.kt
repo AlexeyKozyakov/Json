@@ -40,6 +40,29 @@ inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
 }
 
 /**
+ * Maps value of type [T] to [Json].
+ *
+ * T can be one of the following:
+ *
+ * T <- String, Number, Boolean, Enum
+ *
+ * T <- null
+ *
+ * T <- Iterable<T>, Collection<T>, List<T>
+ *
+ * T <- Sequence<T>
+ *
+ * T <- class { val t1: T1, val t2: T2, ... }
+ *
+ * @param omitNulls enables omitting of null properties during mapping.
+ *
+ * @throws JsonWritingException if provided type cannot be mapped to [Json].
+ */
+inline fun <reified T> T.toJsonRepresentation(omitNulls: Boolean = true): Json {
+    return toJson(this, typeOf<T>(), omitNulls)
+}
+
+/**
  * Exception which can be thrown while JSON writing if
  * it contains unsupported fields.
  */

@@ -106,7 +106,18 @@ sealed interface Shape {
     data class Circle(val radius: Int) : Shape
 
     companion object : JsonMapper<Shape> {
-        override fun toJson(value: Shape) = error("Not implemented")
+        override fun toJson(value: Shape): Json {
+            return when (value) {
+                is Rectangle -> jsonObj {
+                    string("type", "rectangle")
+                    fields(value.toJsonRepresentation().obj())
+                }
+                is Circle -> jsonObj {
+                    string("type", "circle")
+                    fields(value.toJsonRepresentation().obj())
+                }
+            }
+        }
 
         override fun fromJson(json: Json): Shape {
             val type = json.string("type")

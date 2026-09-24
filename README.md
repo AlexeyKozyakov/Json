@@ -98,7 +98,7 @@ val json = user.toJson()
 ### Custom JSON mappers
 In some cases mapping based on primary constructors and class properties is not enough.
 
-Json-reflect module supports custom class <-> JSON mapping logic. Custom mapping can be provided
+Json-reflect module supports custom mapping logic which can be provided
 by implementing JsonMapper interface on class companion object.
 ```kotlin
 sealed interface Shape {

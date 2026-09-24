@@ -56,7 +56,7 @@ println(json.string("name"))
 ## json module
 ### JSON representation
 The `json` module does not require DTO classes. 
-You can manipulate JSON structures directly:
+You can create JSON structures directly:
 
 ```kotlin
 val json = jsonObj {

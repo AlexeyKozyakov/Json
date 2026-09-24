@@ -111,12 +111,8 @@ sealed interface Shape {
         override fun fromJson(json: Json): Shape {
             val type = json.string("type")
             return when (type) {
-                "rectangle" -> Rectangle(
-                    width = json.int("width"),
-                    height = json.int("height")
-                )
-
-                "circle" -> Circle(radius = json.int("radius"))
+                "rectangle" -> fromJsonRepresentation<Rectangle>(json)
+                "circle" -> fromJsonRepresentation<Circle>(json)
                 else -> error("Unknown shape")
             }
         }

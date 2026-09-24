@@ -7,7 +7,6 @@ import io.github.alexeykozyakov.json.representation.JsonNull
 import io.github.alexeykozyakov.json.representation.JsonNumber
 import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
-import javax.xml.transform.Source
 
 
 /**

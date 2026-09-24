@@ -99,11 +99,15 @@ internal class JsonTokenizer(
 
     private fun skipWhitespaces() {
         while (!isEnded() && currentChar().isWhitespace()) {
-            if (currentChar() == '\n') {
-                line++
-                lineStart = position + 1
-            }
+            checkNewLine()
             position++
+        }
+    }
+
+    private fun checkNewLine() {
+        if (currentChar() == '\n') {
+            line++
+            lineStart = position + 1
         }
     }
 
@@ -153,6 +157,7 @@ internal class JsonTokenizer(
                         }
                     }
                 } else {
+                    checkNewLine()
                     append(currentChar())
                 }
                 position++

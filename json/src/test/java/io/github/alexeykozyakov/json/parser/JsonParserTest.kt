@@ -300,4 +300,19 @@ class JsonParserTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun parseJsonErrorUnexpectedEOF() {
+        val json = """
+        {
+            "string": "123\n\t
+        }
+    """.trimIndent()
+
+        val exception = Assert.assertThrows(JsonParsingException::class.java) {
+            parseJson(json)
+        }
+
+        Assert.assertEquals("Parsing error at position 3:2 Expected \" but EOF reached", exception.message)
+    }
 }

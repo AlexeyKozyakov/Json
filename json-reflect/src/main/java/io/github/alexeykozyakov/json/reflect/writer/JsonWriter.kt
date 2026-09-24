@@ -31,6 +31,8 @@ import kotlin.reflect.typeOf
  * T <- class { val t1: T1, val t2: T2, ... }
  *
  * @param omitNulls enables omitting of null properties during class serialization.
+ *
+ * @throws JsonWritingException if provided type cannot be written to JSON.
  */
 inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
     val json = toJson(this, typeOf<T>(), omitNulls)

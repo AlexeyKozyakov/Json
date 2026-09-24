@@ -40,7 +40,7 @@ import kotlin.reflect.typeOf
  *
  * T <- class(val t1: T1, val t2: T2, ...)
  *
- * @throws IllegalStateException if parsing error is occurred
+ * @throws JsonParsingException if parsing error is occurred
  */
 inline fun <reified T> fromJson(input: String): T {
     val json = parseJson(input)

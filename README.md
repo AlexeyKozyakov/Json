@@ -3,7 +3,7 @@ Lightweight JSON parser and serializer for Kotlin/JVM
 - no runtime dependencies beyond the Kotlin standard library
 - Kotlin-first API
 - parse JSON without reflection
-- optional reflection-based JSON <-> class mapping
+- optional reflection-based mapping between JSON and Kotlin classes
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/namespace/io.github.alexeykozyakov.json)
 [![GitHub release](https://img.shields.io/github/v/release/AlexeyKozyakov/Json)](https://github.com/AlexeyKozyakov/Json/releases)
@@ -17,31 +17,30 @@ Low-level JSON API
 Features:
 - parse JSON into a Kotlin representation based on sealed classes
 - convenient JSON field getters
-- generalizes working with integer and floating point numbers by using Kotlin Number type under the hood
+- represents integer and floating-point numbers using Kotlin Number
 - JSON builder DSL
 - serialize JSON representation back to string
 ### json-reflect
-Reflection-based JSON <-> class mapping built on top of json
+Reflection-based mapping between JSON and Kotlin classes built on top of json
 
-Features
-- reflection-based mapping: class <-> JSON string
-- converts JSON to classes using primary constructor
+Features:
+- maps JSON to Kotlin classes using their primary constructors
 - serializes all class properties declared in code
 - supports iterables, collections, lists and sequences
-- supports custom serialization and deserialization logic
+- supports custom JsonMapper implementations for complex types
 ## Installation
 ### json
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/artifact/io.github.alexeykozyakov.json/json)
 ```kotlin
 dependencies {
-    implementation("io.github.alexeykozyakov.json:json:x.x.x")
+    implementation("io.github.alexeykozyakov.json:json:1.0.6")
 }
 ```
 ### json-reflect
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json-reflect.svg)](https://central.sonatype.com/artifact/io.github.alexeykozyakov.json/json-reflect)
 ```kotlin
 dependencies {
-    implementation("io.github.alexeykozyakov.json:json-reflect:x.x.x")
+    implementation("io.github.alexeykozyakov.json:json-reflect:1.0.6")
 }
 ```
 ## Quick start
@@ -49,9 +48,12 @@ dependencies {
 import io.github.alexeykozyakov.json.parser.parseJson
 
 val json = parseJson("""{"name":"Alexey","age":28}""")
-
 println(json.string("name"))
 // Alexey
+
+val output = writeJson(json)
+println(output)
+// {"name":"Alexey","age":28}
 ```
 ## json module
 ### JSON representation
@@ -68,6 +70,7 @@ val json = jsonObj {
 }
 
 println(writeJson(json))
+// {"name":"Alexey","scores":[100,200]}
 ```
 
 ### JSON parsing
@@ -152,13 +155,15 @@ println(shapes)
 
 ## Design goals
 JsonParser focuses on a simple and Kotlin-friendly API.
-Unlike annotation-based libraries, it allows direct work with JSON representation:
+
+The `json` module exposes JSON as a Kotlin representation that can be
+inspected and manipulated directly:
 
 ```kotlin
 val json = parseJson(input)
-
 val name = json.string("name")
 ```
+
 For automatic mapping between JSON and Kotlin classes, use json-reflect.
 ## License
 Apache License 2.0

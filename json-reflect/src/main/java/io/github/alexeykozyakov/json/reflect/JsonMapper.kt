@@ -3,10 +3,8 @@ package io.github.alexeykozyakov.json.reflect
 import io.github.alexeykozyakov.json.representation.Json
 
 /**
- * Interface to implement custom [Json] <-> class mapping logic.
+ * Interface to implement custom mapping logic between [Json] and class of type [T].
  * Should be implemented on class companion object.
- * Implemented mapping methods will be used
- * by [fromJson] and [toJson] functions.
  */
 interface JsonMapper<T: Any> {
     /**

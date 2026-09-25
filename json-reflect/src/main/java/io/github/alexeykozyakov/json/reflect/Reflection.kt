@@ -31,7 +31,7 @@ internal fun KClassifier.getCompanionObject(): Any? {
             ?.declaredFields?.firstOrNull { field ->
                 field.name == companionClass.simpleName
             } ?: return null
-        if (!instanceField.trySetAccessible()) return false
+        if (!instanceField.trySetAccessible()) return null
         return instanceField.get(null)
     }
 }

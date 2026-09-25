@@ -14,7 +14,7 @@ import io.github.alexeykozyakov.json.representation.JsonString
  * @throws IllegalArgumentException if JSON structure does not match expected type.
  */
 fun Json.obj() = requireNotNull(this as? JsonObject) {
-    "JsonObject object expected but was ${this::class.simpleName}"
+    "JsonObject expected but was ${this::class.simpleName}"
 }
 
 /**

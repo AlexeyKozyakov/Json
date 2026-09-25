@@ -81,10 +81,10 @@ class JsonWriterTest {
 
         val expected = """
         {
-            "bool": true,
-            "float": 0.123,
             "hello": "world",
-            "int": 123
+            "int": 123,
+            "float": 0.123,
+            "bool": true
         }
     """.trimIndent()
 
@@ -96,35 +96,35 @@ class JsonWriterTest {
     @Test
     fun writeJsonComplex() {
         val expected = """
-        {
-            "array": [
-                {
-                    "id": 1,
-                    "name": "first"
-                },
-                {
-                    "id": 2,
-                    "name": "second"
-                },
-                {
-                    "id": 3,
-                    "name": "third"
-                }
-            ],
-            "bool": true,
-            "float": 0.123,
-            "hello": "world",
-            "int": 123,
-            "obj": {
+            {
+                "hello": "world",
+                "int": 123,
+                "float": 0.123,
+                "bool": true,
                 "array": [
-                    1,
-                    2,
-                    3,
-                    4
+                    {
+                        "id": 1,
+                        "name": "first"
+                    },
+                    {
+                        "id": 2,
+                        "name": "second"
+                    },
+                    {
+                        "id": 3,
+                        "name": "third"
+                    }
                 ],
-                "key": "value"
+                "obj": {
+                    "key": "value",
+                    "array": [
+                        1,
+                        2,
+                        3,
+                        4
+                    ]
+                }
             }
-        }
     """.trimIndent()
 
         data class Obj(
@@ -198,60 +198,60 @@ class JsonWriterTest {
         )
 
         val expected = """
-        {
-            "students": [
-                {
-                    "age": 18,
-                    "courses": [
-                        {
-                            "description": "Very important course",
-                            "id": 1,
-                            "name": "Math"
-                        },
-                        {
-                            "description": "Additional course",
-                            "id": 2,
-                            "name": "English"
-                        }
-                    ],
-                    "gender": false,
-                    "name": "Alex Kozyakov"
-                },
-                {
-                    "age": 22,
-                    "courses": [
-                        {
-                            "description": "Learning russian language",
-                            "id": 4,
-                            "name": "Russian"
-                        },
-                        {
-                            "description": "Stay fit",
-                            "id": 5,
-                            "name": "Sport"
-                        }
-                    ],
-                    "gender": true,
-                    "name": "Elena Stepanova"
-                },
-                {
-                    "age": 27,
-                    "courses": [
-                        {
-                            "description": "Some additional course",
-                            "id": 7,
-                            "name": "Some course"
-                        },
-                        {
-                            "id": 8,
-                            "name": "Swimming"
-                        }
-                    ],
-                    "gender": false,
-                    "name": "Andrey Martinov"
-                }
-            ]
-        }
+            {
+                "students": [
+                    {
+                        "age": 18,
+                        "gender": false,
+                        "name": "Alex Kozyakov",
+                        "courses": [
+                            {
+                                "id": 1,
+                                "name": "Math",
+                                "description": "Very important course"
+                            },
+                            {
+                                "id": 2,
+                                "name": "English",
+                                "description": "Additional course"
+                            }
+                        ]
+                    },
+                    {
+                        "age": 22,
+                        "gender": true,
+                        "name": "Elena Stepanova",
+                        "courses": [
+                            {
+                                "id": 4,
+                                "name": "Russian",
+                                "description": "Learning russian language"
+                            },
+                            {
+                                "id": 5,
+                                "name": "Sport",
+                                "description": "Stay fit"
+                            }
+                        ]
+                    },
+                    {
+                        "age": 27,
+                        "gender": false,
+                        "name": "Andrey Martinov",
+                        "courses": [
+                            {
+                                "id": 7,
+                                "name": "Some course",
+                                "description": "Some additional course"
+                            },
+                            {
+                                "id": 8,
+                                "name": "Swimming"
+                            }
+                        ]
+                    }
+                ]
+            }
         """.trimIndent()
 
         val data = Students(
@@ -324,8 +324,8 @@ class JsonWriterTest {
 
         val expected = """
             {
-                "nonnull": 213,
-                "nullable": null
+                "nullable": null,
+                "nonnull": 213
             }
         """.trimIndent()
 
@@ -457,8 +457,8 @@ class JsonWriterTest {
             [
                 {
                     "type": "rectangle",
-                    "height": 20,
-                    "width": 10
+                    "width": 10,
+                    "height": 20
                 },
                 {
                     "type": "circle",

@@ -3,6 +3,7 @@ package io.github.alexeykozyakov.json.reflect.writer
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
+import io.github.alexeykozyakov.json.reflect.getPropertiesInDeclarationOrderIfPossible
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonArray
 import io.github.alexeykozyakov.json.representation.JsonBoolean
@@ -12,7 +13,6 @@ import io.github.alexeykozyakov.json.representation.JsonObject
 import io.github.alexeykozyakov.json.representation.JsonString
 import io.github.alexeykozyakov.json.writer.writeJson
 import kotlin.reflect.KType
-import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.typeOf
 
 /**
@@ -98,7 +98,7 @@ fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
             if (mapper != null) {
                 mapper::toJson.allowAccessAndCall(value)
             } else {
-                val properties = value::class.declaredMemberProperties
+                val properties = value::class.getPropertiesInDeclarationOrderIfPossible()
                 val values = mutableMapOf<String, Json>()
                 for (property in properties) {
                     val propertyValue = property.allowAccessAndCall(value)

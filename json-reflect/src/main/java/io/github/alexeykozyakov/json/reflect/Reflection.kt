@@ -3,8 +3,11 @@ package io.github.alexeykozyakov.json.reflect
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KClassifier
+import kotlin.reflect.KProperty1
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
 private const val INSTANCE_FIELD = "INSTANCE"
@@ -33,5 +36,19 @@ internal fun KClassifier.getCompanionObject(): Any? {
             } ?: return null
         if (!instanceField.trySetAccessible()) return null
         return instanceField.get(null)
+    }
+}
+
+internal fun KClass<*>.getPropertiesInDeclarationOrderIfPossible(): Collection<KProperty1<*, *>> {
+    return if (isData) {
+        val constructor = primaryConstructor!!
+        val propertiesMap = declaredMemberProperties.associateBy {
+                property -> property.name
+        }
+        constructor.parameters.map { parameter ->
+            propertiesMap[parameter.name]!!
+        }
+    } else {
+        declaredMemberProperties
     }
 }

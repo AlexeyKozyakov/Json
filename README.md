@@ -153,6 +153,10 @@ println(shapes)
 // [Rectangle(width=10, height=20), Circle(radius=5)]
 ```
 
+## Examples
+
+More complex usage examples can be found in the repository's [examples](https://github.com/AlexeyKozyakov/Json/tree/main/examples) directory.
+
 ## Design goals
 JsonParser focuses on a simple and Kotlin-friendly API.
 

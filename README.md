@@ -109,6 +109,15 @@ sealed interface Shape {
     data class Circle(val radius: Int) : Shape
 
     companion object : JsonMapper<Shape> {
+        override fun fromJson(json: Json): Shape {
+            val type = json.string("type")
+            return when (type) {
+                "rectangle" -> fromJsonRepresentation<Rectangle>(json)
+                "circle" -> fromJsonRepresentation<Circle>(json)
+                else -> error("Unknown shape")
+            }
+        }
+
         override fun toJson(value: Shape): Json {
             return when (value) {
                 is Rectangle -> jsonObj {
@@ -119,15 +128,6 @@ sealed interface Shape {
                     string("type", "circle")
                     fields(value.toJsonRepresentation().obj())
                 }
-            }
-        }
-
-        override fun fromJson(json: Json): Shape {
-            val type = json.string("type")
-            return when (type) {
-                "rectangle" -> fromJsonRepresentation<Rectangle>(json)
-                "circle" -> fromJsonRepresentation<Circle>(json)
-                else -> error("Unknown shape")
             }
         }
     }

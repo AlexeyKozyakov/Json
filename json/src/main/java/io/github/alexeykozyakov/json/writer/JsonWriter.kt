@@ -68,7 +68,7 @@ private fun StringBuilder.writeString(json: JsonString) {
     val escaped = buildString {
         for (char in json.value) {
             when (char) {
-                '\"', '\\', '/' -> append("\\$char")
+                '\"', '\\' -> append("\\$char")
                 '\b' -> append("\\b")
                 0x0C.toChar() -> append("\\f")
                 '\n' -> append("\\n")

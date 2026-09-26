@@ -1,3 +1,4 @@
+import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.writer.toJson
 
 fun main() {
@@ -143,8 +144,19 @@ fun main() {
                 null,
                 "value",
                 null
-            )
-        )
+            ),
+        ),
+        additionalData = mapOf(
+            "favoriteArtists" to listOf(
+                "Lil Peep",
+                "XXXTentacion"
+            ),
+            "clothesSize" to "XXL"
+        ),
+        arbitraryObject = jsonObj {
+            int("code", 67)
+            string("data", "six seven")
+        }
     )
 
     val json = user.toJson()

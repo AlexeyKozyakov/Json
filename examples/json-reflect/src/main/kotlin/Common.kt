@@ -1,3 +1,5 @@
+import io.github.alexeykozyakov.json.representation.JsonObject
+
 data class User(
     val id: Int,
     val username: String,
@@ -13,7 +15,9 @@ data class User(
     val statistics: Statistics,
     val projects: List<Project>,
     val recentActivity: List<Activity>,
-    val preferences: Preferences
+    val preferences: Preferences,
+    val additionalData: Map<String, Any>,
+    val arbitraryObject: JsonObject
 )
 
 data class Profile(

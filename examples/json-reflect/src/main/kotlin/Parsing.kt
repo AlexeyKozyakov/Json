@@ -145,6 +145,17 @@ fun main() {
               "value",
               null
             ]
+          },
+          "additionalData": {
+            "favoriteArtists": [
+               "Lil Peep",
+               "XXXTentacion"
+            ],
+            "clothesSize": "XXL"
+          },
+          "arbitraryObject": {
+            "code": 67,
+            "data": "six seven"
           }
         }
     """.trimIndent()

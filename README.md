@@ -26,7 +26,7 @@ Reflection-based mapping between JSON and Kotlin classes built on top of json
 Features:
 - maps JSON to Kotlin classes using their primary constructors
 - serializes all class properties declared in code
-- supports iterables, collections, lists and sequences
+- supports iterables, collections, lists, maps, sequences and enums
 - supports custom JsonMapper implementations for complex types
 ## Installation
 ### json

@@ -7,6 +7,7 @@ import io.github.alexeykozyakov.json.accessors.double
 import io.github.alexeykozyakov.json.accessors.float
 import io.github.alexeykozyakov.json.accessors.int
 import io.github.alexeykozyakov.json.accessors.long
+import io.github.alexeykozyakov.json.accessors.number
 import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.accessors.short
 import io.github.alexeykozyakov.json.accessors.string
@@ -16,7 +17,12 @@ import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.representation.Json
+import io.github.alexeykozyakov.json.representation.JsonArray
+import io.github.alexeykozyakov.json.representation.JsonBoolean
 import io.github.alexeykozyakov.json.representation.JsonNull
+import io.github.alexeykozyakov.json.representation.JsonNumber
+import io.github.alexeykozyakov.json.representation.JsonObject
+import io.github.alexeykozyakov.json.representation.JsonString
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -32,11 +38,13 @@ import kotlin.reflect.typeOf
  * T can be one of the following:
  *
  *  - String
+ *  - Long, Int, Short, Byte, Double, Float
  *  - Number
  *  - Boolean
  *  - Enum
+ *  - Any
  *  - T?
- *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with primary constructor with args of type T1, T2, ... Tn
  *
  * @throws JsonParsingException if parsing error was occurred
@@ -52,11 +60,13 @@ inline fun <reified T> fromJson(input: String): T {
  * T can be one of the following:
  *
  *  - String
+ *  - Long, Int, Short, Byte, Double, Float
  *  - Number
  *  - Boolean
  *  - Enum
+ *  - Any
  *  - T?
- *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with primary constructor with args of type T1, T2, ... Tn
  *
  * @throws JsonParsingException if mapping error was occurred
@@ -81,17 +91,23 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
 
                 Long::class -> json.long()
 
+                Int::class -> json.int()
+
                 Short::class -> json.short()
 
                 Byte::class -> json.byte()
-
-                Int::class -> json.int()
 
                 Double::class -> json.double()
 
                 Float::class -> json.float()
 
+                Number::class -> json.number()
+
                 Char::class -> error("Unsupported primitive type Char")
+
+                Any::class -> anyFromJson(json)
+
+                Map::class -> mapFromJson(json, type)
 
                 Sequence::class -> listFromJson(json, type, key).asSequence()
 
@@ -110,6 +126,36 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
         throw e
     } catch (e: Exception) {
         throw JsonParsingException(e.message + if (key != null) " for key: \"$key\"" else "", e)
+    }
+}
+
+private fun anyFromJson(json: Json): Any {
+    return when (json) {
+        JsonNull -> error("JsonNull is unexpected")
+        is JsonString -> json.value
+        is JsonNumber -> json.value
+        is JsonBoolean -> json.value
+        is JsonArray -> json.value.map(::anyFromJson)
+        is JsonObject -> json.value.mapValues { (_, innerJson) -> anyFromJson(innerJson) }
+    }
+}
+
+private fun mapFromJson(json: Json, type: KType): Map<String, Any?> {
+    val keyType = checkNotNull(type.arguments.first().type) {
+        "Star projection as map key is unsupported"
+    }
+    check(!keyType.isMarkedNullable) {
+        "Non-nullable key type expected"
+    }
+    val keyClass = keyType.classifier as? KClass<*>
+    check(keyClass == String::class) {
+        "Expected map key type to be String, but was ${keyClass?.simpleName ?: "unknown"}"
+    }
+    val valueType = checkNotNull(type.arguments[1].type) {
+        "Star projection as map value is unsupported"
+    }
+    return json.obj().value.mapValues { (innerKey, innerJson) ->
+        fromJson(innerJson, valueType, innerKey)
     }
 }
 

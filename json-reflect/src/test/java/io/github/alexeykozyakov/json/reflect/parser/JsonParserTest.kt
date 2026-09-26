@@ -838,4 +838,49 @@ class JsonParserTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun paseJsonToMap() {
+        val json = """
+            {
+                "name": "Ivan",
+                "age": 23,
+                "additionalData": {
+                    "weight": 75.6,
+                    "gender": "male",
+                    "birthdate": "1990-01-01",
+                    "subjects": [
+                        "math",
+                        "English",
+                        "history"
+                    ]
+                }
+            }
+        """.trimIndent()
+
+        data class Profile(
+            val name: String,
+            val age: Int,
+            val additionalData: Map<String, Any>
+        )
+
+        val actual = fromJson<Profile>(json)
+
+        val expected = Profile(
+            name = "Ivan",
+            age = 23,
+            additionalData = mapOf(
+                "weight" to 75.6,
+                "gender" to "male",
+                "birthdate" to "1990-01-01",
+                "subjects" to listOf(
+                    "math",
+                    "English",
+                    "history"
+                )
+            )
+        )
+
+        Assert.assertEquals(expected, actual)
+    }
 }

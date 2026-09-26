@@ -476,4 +476,48 @@ class JsonWriterTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun writeJsonFromMap() {
+        val expected = """
+            {
+                "name": "Ivan",
+                "age": 23,
+                "additionalData": {
+                    "weight": 75.6,
+                    "gender": "male",
+                    "birthdate": "1990-01-01",
+                    "subjects": [
+                        "math",
+                        "English",
+                        "history"
+                    ]
+                }
+            }
+        """.trimIndent()
+
+        data class Profile(
+            val name: String,
+            val age: Int,
+            val additionalData: Map<String, Any>
+        )
+
+        val profile = Profile(
+            name = "Ivan",
+            age = 23,
+            additionalData = mapOf(
+                "weight" to 75.6,
+                "gender" to "male",
+                "birthdate" to "1990-01-01",
+                "subjects" to listOf(
+                    "math",
+                    "English",
+                    "history"
+                )
+            )
+        )
+        val actual = profile.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
 }

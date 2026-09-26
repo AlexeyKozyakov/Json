@@ -4,28 +4,25 @@ import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.reflect.getPropertiesInDeclarationOrderIfPossible
-import io.github.alexeykozyakov.json.representation.Json
-import io.github.alexeykozyakov.json.representation.JsonArray
-import io.github.alexeykozyakov.json.representation.JsonBoolean
-import io.github.alexeykozyakov.json.representation.JsonNull
-import io.github.alexeykozyakov.json.representation.JsonNumber
-import io.github.alexeykozyakov.json.representation.JsonObject
-import io.github.alexeykozyakov.json.representation.JsonString
+import io.github.alexeykozyakov.json.representation.*
 import io.github.alexeykozyakov.json.writer.writeJson
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 /**
- * Writes value of type T to JSON string.
+ * Writes value of subtype of [T] to JSON string.
  *
  * T can be one of the following:
  *
  *  - String
+ *  - Long, Int, Short, Byte, Double, Float
  *  - Number
  *  - Boolean
  *  - Enum
+ *  - Any
  *  - T?
- *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - class with custom JsonMapper
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with properties of type T1, T2, ... Tn
  *
  * @param omitNulls enables omitting of null properties during class serialization.
@@ -38,16 +35,19 @@ inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
 }
 
 /**
- * Maps value of type [T] to [Json].
+ * Maps value of subtype of [T] to [Json].
  *
  * T can be one of the following:
  *
  *  - String
+ *  - Long, Int, Short, Byte, Double, Float
  *  - Number
  *  - Boolean
  *  - Enum
+ *  - Any
  *  - T?
- *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>
+ *  - class with custom JsonMapper
+ *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with properties of type T1, T2, ... Tn
  *
  * @param omitNulls enables omitting of null properties during mapping.
@@ -68,7 +68,7 @@ class JsonWritingException(message: String, cause: Exception? = null) :
 /**
  * Internal function, use [toJson] or [toJsonRepresentation] instead.
  */
-fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
+fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
     return when (value) {
         is String -> JsonString(value)
 
@@ -82,19 +82,29 @@ fun toJson(value: Any?, type: KType, omitNulls: Boolean): Json {
 
         is Char -> writingError("Unsupported primitive type Char")
 
+        is Map<*, *> -> {
+            val innerType = type?.arguments?.getOrNull(1)?.type
+            val innerValues = mutableMapOf<String, Json>()
+            value.forEach { (key, innerValue) ->
+                if (key == null) writingError("Keys of map should be nonnull")
+                if (key !is String) writingError("Only String type of map keys is supported")
+                innerValues[key] = toJson(innerValue, innerType, omitNulls)
+            }
+            JsonObject(value = innerValues)
+        }
+
         is Iterable<*>, is Sequence<*> -> {
-            val valueType = type.arguments.first().type
-                ?: writingError("Unknown value type of collection")
-            val values = when (value) {
-                is Iterable<*> -> value.map { item -> toJson(item, valueType, omitNulls) }
-                is Sequence<*> -> value.map { item -> toJson(item, valueType, omitNulls) }.toList()
+            val innerType = type?.arguments?.firstOrNull()?.type
+            val innerValues = when (value) {
+                is Iterable<*> -> value.map { item -> toJson(item, innerType, omitNulls) }
+                is Sequence<*> -> value.map { item -> toJson(item, innerType, omitNulls) }.toList()
                 else -> writingError("Expected Iterable or Sequence")
             }
-            JsonArray(value = values)
+            JsonArray(value = innerValues)
         }
 
         else -> {
-            val mapper = type.classifier?.getCompanionObject() as? JsonMapper<*>
+            val mapper = type?.classifier?.getCompanionObject() as? JsonMapper<*>
             if (mapper != null) {
                 mapper::toJson.allowAccessAndCall(value)
             } else {

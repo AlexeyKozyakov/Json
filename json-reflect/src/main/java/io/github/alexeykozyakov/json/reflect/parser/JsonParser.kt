@@ -1,28 +1,12 @@
 package io.github.alexeykozyakov.json.reflect.parser
 
-import io.github.alexeykozyakov.json.accessors.array
-import io.github.alexeykozyakov.json.accessors.boolean
-import io.github.alexeykozyakov.json.accessors.byte
-import io.github.alexeykozyakov.json.accessors.double
-import io.github.alexeykozyakov.json.accessors.float
-import io.github.alexeykozyakov.json.accessors.int
-import io.github.alexeykozyakov.json.accessors.long
-import io.github.alexeykozyakov.json.accessors.number
-import io.github.alexeykozyakov.json.accessors.obj
-import io.github.alexeykozyakov.json.accessors.short
-import io.github.alexeykozyakov.json.accessors.string
+import io.github.alexeykozyakov.json.accessors.*
 import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.parser.parseJson
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
-import io.github.alexeykozyakov.json.representation.Json
-import io.github.alexeykozyakov.json.representation.JsonArray
-import io.github.alexeykozyakov.json.representation.JsonBoolean
-import io.github.alexeykozyakov.json.representation.JsonNull
-import io.github.alexeykozyakov.json.representation.JsonNumber
-import io.github.alexeykozyakov.json.representation.JsonObject
-import io.github.alexeykozyakov.json.representation.JsonString
+import io.github.alexeykozyakov.json.representation.*
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -30,6 +14,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.staticFunctions
+import kotlin.reflect.safeCast
 import kotlin.reflect.typeOf
 
 /**
@@ -38,11 +23,11 @@ import kotlin.reflect.typeOf
  * T can be one of the following:
  *
  *  - String
- *  - Long, Int, Short, Byte, Double, Float
- *  - Number
+ *  - Number and its subclasses
  *  - Boolean
- *  - Enum
+ *  - Enum class
  *  - Any
+ *  - [Json] and its subclasses
  *  - T?
  *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with primary constructor with args of type T1, T2, ... Tn
@@ -60,11 +45,11 @@ inline fun <reified T> fromJson(input: String): T {
  * T can be one of the following:
  *
  *  - String
- *  - Long, Int, Short, Byte, Double, Float
- *  - Number
+ *  - Number and its subclasses
  *  - Boolean
- *  - Enum
+ *  - Enum class
  *  - Any
+ *  - [Json] and its subclasses
  *  - T?
  *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with primary constructor with args of type T1, T2, ... Tn
@@ -81,7 +66,11 @@ inline fun <reified T> fromJsonRepresentation(json: Json): T {
 fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     return try {
         if (json == JsonNull) {
-            if (type.isMarkedNullable) null else error("Nonnull value expected")
+            when {
+                type.classifier == Json::class || type.classifier == JsonNull::class -> json
+                type.isMarkedNullable -> null
+                else -> error("Nonnull value expected")
+            }
         } else {
             val kClass = checkNotNull(type.classifier as? KClass<*>) { "Class not provided" }
             when (kClass) {
@@ -117,6 +106,10 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
 
                         kClass.isSubclassOf(Enum::class) -> enumFromJson(json, kClass)
 
+                        kClass.isSubclassOf(Json::class) -> checkNotNull(kClass.safeCast(json)) {
+                            "Expected ${kClass.simpleName} but got ${json::class.simpleName}"
+                        }
+
                         else -> objectFromJson(json, kClass)
                     }
                 }
@@ -129,9 +122,9 @@ fun fromJson(json: Json, type: KType, key: String? = null): Any? {
     }
 }
 
-private fun anyFromJson(json: Json): Any {
+private fun anyFromJson(json: Json): Any? {
     return when (json) {
-        JsonNull -> error("JsonNull is unexpected")
+        JsonNull -> null
         is JsonString -> json.value
         is JsonNumber -> json.value
         is JsonBoolean -> json.value

@@ -4,6 +4,7 @@ import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.representation.Json
+import io.github.alexeykozyakov.json.representation.JsonObject
 import org.junit.Assert
 import org.junit.Test
 
@@ -516,6 +517,73 @@ class JsonWriterTest {
                 )
             )
         )
+        val actual = profile.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun writeArbitraryJsonPartFromJsonObject() {
+        val expected = """
+            {
+                "name": "Ivan",
+                "age": 23,
+                "additionalData": {
+                    "weight": 75.6,
+                    "gender": "male",
+                    "birthdate": "1990-01-01",
+                    "studying": true,
+                    "subjectIds": [
+                        1,
+                        2,
+                        3
+                    ],
+                    "parents": {
+                        "mother": {
+                            "name": "Elena",
+                            "age": 48
+                        },
+                        "father": {
+                            "name": "Simon",
+                            "age": 50
+                        }
+                    }
+                }
+            }
+        """.trimIndent()
+
+        data class Profile(
+            val name: String,
+            val age: Int,
+            val additionalData: JsonObject
+        )
+
+        val profile = Profile(
+            name = "Ivan",
+            age = 23,
+            additionalData = jsonObj {
+                double("weight", 75.6)
+                string("gender", "male")
+                string("birthdate", "1990-01-01")
+                boolean("studying", true)
+                array("subjectIds") {
+                    int(1)
+                    int(2)
+                    int(3)
+                }
+                obj("parents") {
+                    obj("mother") {
+                        string("name", "Elena")
+                        int("age", 48)
+                    }
+                    obj("father") {
+                        string("name", "Simon")
+                        int("age", 50)
+                    }
+                }
+            }
+        )
+
         val actual = profile.toJson()
 
         Assert.assertEquals(expected, actual)

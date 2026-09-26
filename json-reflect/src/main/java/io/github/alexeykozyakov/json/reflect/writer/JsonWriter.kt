@@ -15,12 +15,12 @@ import kotlin.reflect.typeOf
  * T can be one of the following:
  *
  *  - String
- *  - Long, Int, Short, Byte, Double, Float
- *  - Number
+ *  - Number and its subclasses
  *  - Boolean
  *  - Enum
  *  - Any
  *  - T?
+ *  - [Json] and its subclasses
  *  - class with custom JsonMapper
  *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with properties of type T1, T2, ... Tn
@@ -40,12 +40,12 @@ inline fun <reified T> T.toJson(omitNulls: Boolean = true): String {
  * T can be one of the following:
  *
  *  - String
- *  - Long, Int, Short, Byte, Double, Float
- *  - Number
+ *  - Number and its subclasses
  *  - Boolean
  *  - Enum
  *  - Any
  *  - T?
+ *  - [Json] and its subclasses
  *  - class with custom JsonMapper
  *  - List<T>, Sequence<T>, Iterable<T>, Collection<T>, Map<String, T>
  *  - class with properties of type T1, T2, ... Tn
@@ -81,6 +81,8 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
         null -> JsonNull
 
         is Char -> writingError("Unsupported primitive type Char")
+
+        is Json -> value
 
         is Map<*, *> -> {
             val innerType = type?.arguments?.getOrNull(1)?.type

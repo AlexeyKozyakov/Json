@@ -3,6 +3,7 @@ package io.github.alexeykozyakov.json.reflect
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KClassifier
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.companionObjectInstance
@@ -16,6 +17,11 @@ private const val HIDDEN_INSTANCE_FIELD = "$$$INSTANCE_FIELD"
 internal fun <T> KCallable<T>.allowAccessAndCall(vararg args: Any?): T {
     isAccessible = true
     return call(*args)
+}
+
+internal fun <T> KCallable<T>.allowAccessAndCallBy(args: Map<KParameter, Any?>): T {
+    isAccessible = true
+    return callBy(args)
 }
 
 internal fun KClassifier.getCompanionObject(): Any? {

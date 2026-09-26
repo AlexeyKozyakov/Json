@@ -5,17 +5,15 @@ import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.parser.parseJson
 import io.github.alexeykozyakov.json.reflect.JsonMapper
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
+import io.github.alexeykozyakov.json.reflect.allowAccessAndCallBy
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.representation.*
 import java.lang.reflect.InvocationTargetException
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
+import kotlin.reflect.*
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.staticFunctions
-import kotlin.reflect.safeCast
-import kotlin.reflect.typeOf
 
 /**
  * Parses JSON from [input] string as type [T].
@@ -188,19 +186,22 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
     val constructor = checkNotNull(kClass.primaryConstructor) {
         "Primary constructor or JsonMapper of class ${kClass.simpleName} not found"
     }
-    val args = constructor.parameters.map { parameter ->
+    val args = mutableMapOf<KParameter, Any?>()
+    for (parameter in constructor.parameters) {
         val innerKey = checkNotNull(parameter.name) {
             "Constructor parameter name of class ${kClass.simpleName} is required"
         }
-        val value = json.obj().value[innerKey]?.let { innerJson ->
-            fromJson(innerJson, parameter.type, key = innerKey)
-        }
-        if (value == null) {
-            check(parameter.type.isMarkedNullable) {
-                "Required value for inner key \"$innerKey\" is not provided"
+        val innerJson = json.obj().value[innerKey]
+        val value = if (innerJson != null) fromJson(innerJson, parameter.type, key = innerKey) else null
+        if (innerJson != null) {
+            args[parameter] = value
+        } else {
+            when {
+                parameter.isOptional -> Unit
+                parameter.type.isMarkedNullable -> args[parameter] = null
+                else -> error("Required value for inner key \"$innerKey\" is not provided")
             }
         }
-        value
     }
-    return constructor.allowAccessAndCall(*args.toTypedArray())
+    return constructor.allowAccessAndCallBy(args)
 }

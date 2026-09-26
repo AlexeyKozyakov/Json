@@ -947,4 +947,32 @@ class JsonParserTest {
 
         Assert.assertEquals(expected, actual)
     }
+
+    @Test
+    fun useDefaultValuesForMissingKeys() {
+        val json = """
+            {
+                "name": "Ivan",
+                "age": 23,
+            }
+        """.trimIndent()
+
+        data class Profile(
+            val name: String,
+            val weight: Double = 88.5,
+            val age: Int,
+            val gender: String = "male"
+        )
+
+        val expected = Profile(
+            name = "Ivan",
+            weight = 88.5,
+            age = 23,
+            gender = "male"
+        )
+
+        val actual = fromJson<Profile>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
 }

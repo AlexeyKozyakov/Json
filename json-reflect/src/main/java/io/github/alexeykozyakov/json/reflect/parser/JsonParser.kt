@@ -3,17 +3,13 @@ package io.github.alexeykozyakov.json.reflect.parser
 import io.github.alexeykozyakov.json.accessors.*
 import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.parser.parseJson
-import io.github.alexeykozyakov.json.reflect.JsonMapper
-import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
-import io.github.alexeykozyakov.json.reflect.allowAccessAndCallBy
-import io.github.alexeykozyakov.json.reflect.getCompanionObject
+import io.github.alexeykozyakov.json.reflect.*
 import io.github.alexeykozyakov.json.representation.*
-import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.full.staticFunctions
 
 /**
  * Parses JSON from [input] string as type [T].
@@ -161,16 +157,13 @@ private fun listFromJson(json: Json, type: KType, key: String?): List<Any?> {
 
 private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
     val value = json.string()
-    val valueOfFunction = kClass.staticFunctions.first { it.name == "valueOf" }
-    return try {
-        valueOfFunction.allowAccessAndCall(value)!!
-    } catch (e: InvocationTargetException) {
-        if (e.targetException is IllegalArgumentException) {
-            error("Undefined enum constant $value")
-        } else {
-            throw e
-        }
-    }
+    // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
+    val enumConstantField = kClass.java.declaredFields.firstOrNull { field ->
+        val name = field.getAnnotation(JsonName::class.java)?.name ?: field.name
+        name == value
+    } ?: error("Cannot find enum constant with name $value")
+    if (!enumConstantField.trySetAccessible()) error("Cannot access enum constants of class ${kClass.simpleName}")
+    return enumConstantField.get(null)
 }
 
 private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
@@ -188,9 +181,10 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
     }
     val args = mutableMapOf<KParameter, Any?>()
     for (parameter in constructor.parameters) {
-        val innerKey = checkNotNull(parameter.name) {
-            "Constructor parameter name of class ${kClass.simpleName} is required"
-        }
+        // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
+        val innerKey = parameter.findAnnotation<JsonName>()?.name
+            ?: parameter.name
+            ?: error("Constructor parameter name or JsonName annotation is required in class ${kClass.simpleName}")
         val innerJson = json.obj().value[innerKey]
         val value = if (innerJson != null) fromJson(innerJson, parameter.type, key = innerKey) else null
         if (innerJson != null) {

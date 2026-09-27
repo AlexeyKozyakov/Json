@@ -1,12 +1,14 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
 import io.github.alexeykozyakov.json.reflect.JsonMapper
+import io.github.alexeykozyakov.json.reflect.JsonName
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.reflect.getPropertiesInDeclarationOrderIfPossible
 import io.github.alexeykozyakov.json.representation.*
 import io.github.alexeykozyakov.json.writer.writeJson
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.typeOf
 
 /**
@@ -76,7 +78,11 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
 
         is Boolean -> JsonBoolean(value)
 
-        is Enum<*> -> JsonString(value.name)
+        is Enum<*> -> {
+            val name = value::class.java.getDeclaredField(value.name)
+                .getAnnotation(JsonName::class.java)?.name ?: value.name
+            JsonString(name)
+        }
 
         null -> JsonNull
 
@@ -115,7 +121,9 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
                 for (property in properties) {
                     val propertyValue = property.allowAccessAndCall(value)
                     if (propertyValue == null && omitNulls) continue
-                    values[property.name] = toJson(propertyValue, property.returnType, omitNulls)
+                    // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
+                    val name = property.findAnnotation<JsonName>()?.name ?: property.name
+                    values[name] = toJson(propertyValue, property.returnType, omitNulls)
                 }
                 JsonObject(value = values)
             }

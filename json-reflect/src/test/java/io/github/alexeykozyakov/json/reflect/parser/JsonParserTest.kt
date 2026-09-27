@@ -7,6 +7,7 @@ import io.github.alexeykozyakov.json.accessors.string
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.reflect.JsonMapper
+import io.github.alexeykozyakov.json.reflect.JsonName
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonObject
 import org.junit.Assert
@@ -711,7 +712,7 @@ class JsonParserTest {
             fromJson<Data>(json)
         }
 
-        Assert.assertEquals("Undefined enum constant Tw for key: \"value\"", exception.message)
+        Assert.assertEquals("Cannot find enum constant with name Tw for key: \"value\"", exception.message)
     }
 
     private sealed interface Data {
@@ -972,6 +973,66 @@ class JsonParserTest {
         )
 
         val actual = fromJson<Profile>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    private enum class AnnotatedEnum {
+        First,
+        @JsonName("annotated")
+        Second,
+        Third
+    }
+
+    @Test
+    fun parseEnumConstantWithNameFromAnnotation() {
+        data class Data(
+            val name: String,
+            val enum: AnnotatedEnum
+        )
+
+        val json = """
+            {
+                "name": "Ivan",
+                "enum": "annotated"
+            }
+        """.trimIndent()
+
+        val expected = Data(
+            name = "Ivan",
+            enum = AnnotatedEnum.Second
+        )
+
+        val actual = fromJson<Data>(json)
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun parseClassWithFieldNameAnnotation() {
+        data class Data(
+            @JsonName("first_name")
+            val firstName: String,
+            @JsonName("second_name")
+            val secondName: String,
+            val age: Int
+        )
+
+        val json = """
+            {
+                "first_name": "Ivan",
+                "second_name": "Pavlov",
+                "age": 24
+            }
+        """.trimIndent()
+
+        val expected = Data(
+            firstName = "Ivan",
+            secondName = "Pavlov",
+            age = 24
+        )
+
+        val actual = fromJson<Data>(json)
 
         Assert.assertEquals(expected, actual)
     }

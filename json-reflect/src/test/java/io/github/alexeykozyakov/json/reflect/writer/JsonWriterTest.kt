@@ -3,6 +3,7 @@ package io.github.alexeykozyakov.json.reflect.writer
 import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.JsonMapper
+import io.github.alexeykozyakov.json.reflect.JsonName
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonObject
 import org.junit.Assert
@@ -585,6 +586,66 @@ class JsonWriterTest {
         )
 
         val actual = profile.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    private enum class AnnotatedEnum {
+        One,
+        @JsonName("annotated")
+        Two,
+        Three
+    }
+
+    @Test
+    fun writeEnumConstantWithNameFromAnnotation() {
+        data class Data(
+            val name: String,
+            val enum: AnnotatedEnum
+        )
+
+        val data = Data(
+            name = "Ivan",
+            enum = AnnotatedEnum.Two
+        )
+
+        val expected = """
+            {
+                "name": "Ivan",
+                "enum": "annotated"
+            }
+        """.trimIndent()
+
+        val actual = data.toJson()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun writeClassWithAnnotatedNamedFieldToJson() {
+        data class Data(
+            @JsonName("first_name")
+            val firstName: String,
+            @JsonName("second_name")
+            val secondName: String,
+            val age: Int
+        )
+
+        val data = Data(
+            firstName = "Ivan",
+            secondName = "Popov",
+            age = 23
+        )
+
+        val actual = data.toJson()
+
+        val expected = """
+            {
+                "first_name": "Ivan",
+                "second_name": "Popov",
+                "age": 23
+            }
+        """.trimIndent()
 
         Assert.assertEquals(expected, actual)
     }

@@ -3,8 +3,10 @@ package io.github.alexeykozyakov.json.reflect.writer
 import io.github.alexeykozyakov.json.reflect.*
 import io.github.alexeykozyakov.json.representation.*
 import io.github.alexeykozyakov.json.writer.writeJson
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.typeOf
 
 /**
@@ -66,7 +68,7 @@ class JsonWritingException(message: String, cause: Exception? = null) :
 /**
  * Internal function, use [toJson] or [toJsonRepresentation] instead.
  */
-fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
+fun toJson(value: Any?, type: KType?, omitNulls: Boolean, key: String? = null): Json {
     return when (value) {
         is String -> JsonString(value)
 
@@ -75,7 +77,9 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
         is Boolean -> JsonBoolean(value)
 
         is Enum<*> -> {
-            val field = value::class.java.getDeclaredField(value.name)
+            val kClass = value::class
+            ensureMarkerInterfaceImplemented(kClass, key)
+            val field = kClass.java.getDeclaredField(value.name)
             val nameAnnotation = field.getAnnotation(JsonName::class.java)
             val name = nameAnnotation?.name ?: value.name
             JsonString(name)
@@ -83,17 +87,17 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
 
         null -> JsonNull
 
-        is Char -> writingError("Unsupported primitive type Char")
+        is Char -> writingError("Unsupported primitive type Char", key)
 
         is Json -> value
 
         is Map<*, *> -> {
             val innerType = type?.arguments?.getOrNull(1)?.type
             val innerValues = mutableMapOf<String, Json>()
-            value.forEach { (key, innerValue) ->
-                if (key == null) writingError("Keys of map should be nonnull")
-                if (key !is String) writingError("Only String type of map keys is supported")
-                innerValues[key] = toJson(innerValue, innerType, omitNulls)
+            value.forEach { (innerKey, innerValue) ->
+                if (innerKey == null) writingError("Keys of map should be nonnull", key)
+                if (innerKey !is String) writingError("Only String type of map keys is supported", key)
+                innerValues[innerKey] = toJson(innerValue, innerType, omitNulls, innerKey)
             }
             JsonObject(value = innerValues)
         }
@@ -101,15 +105,18 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
         is Iterable<*>, is Sequence<*> -> {
             val innerType = type?.arguments?.firstOrNull()?.type
             val innerValues = when (value) {
-                is Iterable<*> -> value.map { item -> toJson(item, innerType, omitNulls) }
-                is Sequence<*> -> value.map { item -> toJson(item, innerType, omitNulls) }.toList()
-                else -> writingError("Expected Iterable or Sequence")
+                is Iterable<*> -> value.map { item -> toJson(item, innerType, omitNulls, key) }
+                is Sequence<*> -> value.map { item -> toJson(item, innerType, omitNulls, key) }.toList()
+                else -> writingError("Expected Iterable or Sequence", key)
             }
             JsonArray(value = innerValues)
         }
 
         else -> {
-            val mapper = type?.classifier?.getCompanionObject() as? JsonMapper<*>
+            val kClass = (type?.classifier as? KClass<*>)
+                ?: writingError("Cannot get class of serializing object", key)
+            ensureMarkerInterfaceImplemented(kClass, key)
+            val mapper = kClass.getCompanionObject() as? JsonMapper<*>
             if (mapper != null) {
                 mapper::toJson.allowAccessAndCall(value)
             } else {
@@ -122,8 +129,8 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
                     if (propertyValue == null && omitNulls) continue
                     // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
                     val nameAnnotation = property.findAnnotation<JsonName>()
-                    val name = nameAnnotation?.name ?: property.name
-                    values[name] = toJson(propertyValue, property.returnType, omitNulls)
+                    val innerKey = nameAnnotation?.name ?: property.name
+                    values[innerKey] = toJson(propertyValue, property.returnType, omitNulls, innerKey)
                 }
                 JsonObject(value = values)
             }
@@ -131,6 +138,21 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
     }
 }
 
-private fun writingError(message: String): Nothing {
-    throw JsonWritingException(message)
+private fun writingError(message: String, key: String?): Nothing {
+    throw JsonWritingException("$message ${if (key != null) " for key: $key" else ""}")
+}
+
+private fun ensureMarkerInterfaceImplemented(kClass: KClass<*>, key: String?) {
+    if (!isAndroid) return
+    if (!kClass.isSubclassOf(JsonModel::class)) {
+        writingError(
+            """
+                Trying to serialize class ${kClass.simpleName}, which is not implementing JsonModel interface.
+                You are likely using json-reflect library in android application,
+                so to disable some R8 optimizations that may break serialization, you need
+                to implement JsonModel marker interface on your DTO classes.
+            """.trimIndent(),
+            key
+        )
+    }
 }

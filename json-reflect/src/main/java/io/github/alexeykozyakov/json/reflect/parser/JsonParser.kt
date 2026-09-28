@@ -156,6 +156,7 @@ private fun listFromJson(json: Json, type: KType, key: String?): List<Any?> {
 }
 
 private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
+    ensureMarkerInterfaceImplemented(kClass)
     val value = json.string()
     // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
     val enumConstantField = kClass.java.declaredFields.firstOrNull { field ->
@@ -163,11 +164,12 @@ private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
         val name = nameAnnotation?.name ?: field.name
         name == value
     } ?: error("Cannot find enum constant with name $value")
-    if (!enumConstantField.trySetAccessible()) error("Cannot access enum constants of class ${kClass.simpleName}")
+    enumConstantField.isAccessible = true
     return enumConstantField.get(null)
 }
 
 private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
+    ensureMarkerInterfaceImplemented(kClass)
     val mapper = kClass.getCompanionObject() as? JsonMapper<*>
     if (mapper != null) {
         val value = mapper::fromJson.allowAccessAndCall(json)
@@ -200,4 +202,16 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
         }
     }
     return constructor.allowAccessAndCallBy(args)
+}
+
+private fun ensureMarkerInterfaceImplemented(kClass: KClass<*>) {
+    if (!isAndroid) return
+    check(kClass.isSubclassOf(JsonModel::class)) {
+        """
+            Trying to deserialize class ${kClass.simpleName}, which is not implementing JsonModel interface.
+            You are likely using json-reflect library in android application,
+            so to disable some R8 optimizations that may break deserialization, you need
+            to implement JsonModel marker interface on your DTO classes.
+        """.trimIndent()
+    }
 }

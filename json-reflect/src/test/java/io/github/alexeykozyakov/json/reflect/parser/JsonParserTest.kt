@@ -7,7 +7,7 @@ import io.github.alexeykozyakov.json.accessors.string
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.parser.JsonParsingException
 import io.github.alexeykozyakov.json.reflect.JsonMapper
-import io.github.alexeykozyakov.json.reflect.JsonField
+import io.github.alexeykozyakov.json.reflect.JsonName
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonObject
 import org.junit.Assert
@@ -979,7 +979,7 @@ class JsonParserTest {
 
     private enum class AnnotatedEnum {
         First,
-        @JsonField("annotated")
+        @JsonName("annotated")
         Second,
         Third
     }
@@ -1011,9 +1011,9 @@ class JsonParserTest {
     @Test
     fun parseClassWithFieldNameAnnotation() {
         data class Data(
-            @JsonField("first_name")
+            @JsonName("first_name")
             val firstName: String,
-            @JsonField("second_name")
+            @JsonName("second_name")
             val secondName: String,
             val age: Int
         )

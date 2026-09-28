@@ -3,7 +3,8 @@ package io.github.alexeykozyakov.json.reflect.writer
 import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.JsonMapper
-import io.github.alexeykozyakov.json.reflect.JsonField
+import io.github.alexeykozyakov.json.reflect.JsonName
+import io.github.alexeykozyakov.json.reflect.JsonSkip
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonObject
 import org.junit.Assert
@@ -592,7 +593,7 @@ class JsonWriterTest {
 
     private enum class AnnotatedEnum {
         One,
-        @JsonField("annotated")
+        @JsonName("annotated")
         Two,
         Three
     }
@@ -624,9 +625,9 @@ class JsonWriterTest {
     @Test
     fun writeClassWithAnnotatedNamedFieldToJson() {
         data class Data(
-            @JsonField("first_name")
+            @JsonName("first_name")
             val firstName: String,
-            @JsonField("second_name")
+            @JsonName("second_name")
             val secondName: String,
             val age: Int
         )
@@ -653,11 +654,11 @@ class JsonWriterTest {
     @Test
     fun skipFieldIfSkipParameterIsSetInAnnotation() {
         data class Data(
-            @JsonField("first_name")
+            @JsonName("first_name")
             val firstName: String,
-            @JsonField("second_name")
+            @JsonName("second_name")
             val secondName: String,
-            @JsonField(skip = true)
+            @JsonSkip
             val age: Int
         )
 

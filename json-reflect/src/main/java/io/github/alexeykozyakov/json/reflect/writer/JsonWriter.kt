@@ -1,10 +1,6 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
-import io.github.alexeykozyakov.json.reflect.JsonMapper
-import io.github.alexeykozyakov.json.reflect.JsonField
-import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
-import io.github.alexeykozyakov.json.reflect.getCompanionObject
-import io.github.alexeykozyakov.json.reflect.getPropertiesInDeclarationOrderIfPossible
+import io.github.alexeykozyakov.json.reflect.*
 import io.github.alexeykozyakov.json.representation.*
 import io.github.alexeykozyakov.json.writer.writeJson
 import kotlin.reflect.KType
@@ -80,8 +76,8 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
 
         is Enum<*> -> {
             val field = value::class.java.getDeclaredField(value.name)
-            val annotation = field.getAnnotation(JsonField::class.java)
-            val name = annotation?.name?.takeIf { it.isNotEmpty() } ?: value.name
+            val nameAnnotation = field.getAnnotation(JsonName::class.java)
+            val name = nameAnnotation?.name ?: value.name
             JsonString(name)
         }
 
@@ -120,12 +116,13 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
                 val properties = value::class.getPropertiesInDeclarationOrderIfPossible()
                 val values = mutableMapOf<String, Json>()
                 for (property in properties) {
-                    val annotation = property.findAnnotation<JsonField>()
-                    if (annotation != null && annotation.skip) continue
+                    val skipAnnotation = property.findAnnotation<JsonSkip>()
+                    if (skipAnnotation != null) continue
                     val propertyValue = property.allowAccessAndCall(value)
                     if (propertyValue == null && omitNulls) continue
                     // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
-                    val name = annotation?.name?.takeIf { it.isNotEmpty() } ?: property.name
+                    val nameAnnotation = property.findAnnotation<JsonName>()
+                    val name = nameAnnotation?.name ?: property.name
                     values[name] = toJson(propertyValue, property.returnType, omitNulls)
                 }
                 JsonObject(value = values)

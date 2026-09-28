@@ -76,14 +76,7 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean, key: String? = null): 
 
         is Boolean -> JsonBoolean(value)
 
-        is Enum<*> -> {
-            val kClass = value::class
-            ensureMarkerInterfaceImplemented(kClass, key)
-            val field = kClass.java.getDeclaredField(value.name)
-            val nameAnnotation = field.getAnnotation(JsonName::class.java)
-            val name = nameAnnotation?.name ?: value.name
-            JsonString(name)
-        }
+        is Enum<*> -> enumToJson(value, key)
 
         null -> JsonNull
 
@@ -91,49 +84,62 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean, key: String? = null): 
 
         is Json -> value
 
-        is Map<*, *> -> {
-            val innerType = type?.arguments?.getOrNull(1)?.type
-            val innerValues = mutableMapOf<String, Json>()
-            value.forEach { (innerKey, innerValue) ->
-                if (innerKey == null) writingError("Keys of map should be nonnull", key)
-                if (innerKey !is String) writingError("Only String type of map keys is supported", key)
-                innerValues[innerKey] = toJson(innerValue, innerType, omitNulls, innerKey)
-            }
-            JsonObject(value = innerValues)
-        }
+        is Map<*, *> -> mapToJson(value, type, key, omitNulls)
 
-        is Iterable<*>, is Sequence<*> -> {
-            val innerType = type?.arguments?.firstOrNull()?.type
-            val innerValues = when (value) {
-                is Iterable<*> -> value.map { item -> toJson(item, innerType, omitNulls, key) }
-                is Sequence<*> -> value.map { item -> toJson(item, innerType, omitNulls, key) }.toList()
-                else -> writingError("Expected Iterable or Sequence", key)
-            }
-            JsonArray(value = innerValues)
-        }
+        is Iterable<*> -> iterableToJson(value, type, key, omitNulls)
 
-        else -> {
-            val kClass = (type?.classifier as? KClass<*>)
-                ?: writingError("Cannot get class of serializing object", key)
-            ensureMarkerInterfaceImplemented(kClass, key)
-            val mapper = kClass.getCompanionObject() as? JsonMapper<*>
-            if (mapper != null) {
-                mapper::toJson.allowAccessAndCall(value)
-            } else {
-                val properties = value::class.getPropertiesInDeclarationOrderIfPossible()
-                val values = mutableMapOf<String, Json>()
-                for (property in properties) {
-                    val skipAnnotation = property.findAnnotation<JsonSkip>()
-                    if (skipAnnotation != null) continue
-                    val propertyValue = property.allowAccessAndCall(value)
-                    if (propertyValue == null && omitNulls) continue
-                    val nameAnnotation = property.findAnnotation<JsonName>()
-                    val innerKey = nameAnnotation?.name ?: property.name
-                    values[innerKey] = toJson(propertyValue, property.returnType, omitNulls, innerKey)
-                }
-                JsonObject(value = values)
-            }
+        is Sequence<*> -> iterableToJson(value.asIterable(), type, key, omitNulls)
+
+        else -> objectToJson(value, type, key, omitNulls)
+    }
+}
+
+private fun enumToJson(value: Enum<*>, key: String?): JsonString {
+    val kClass = value::class
+    ensureMarkerInterfaceImplemented(kClass, key)
+    val field = kClass.java.getDeclaredField(value.name)
+    val nameAnnotation = field.getAnnotation(JsonName::class.java)
+    val name = nameAnnotation?.name ?: value.name
+    return JsonString(name)
+}
+
+private fun mapToJson(value: Map<*, *>, type: KType?, key: String?, omitNulls: Boolean): JsonObject {
+    val innerType = type?.arguments?.getOrNull(1)?.type
+    val innerValues = mutableMapOf<String, Json>()
+    value.forEach { (innerKey, innerValue) ->
+        if (innerKey == null) writingError("Keys of map should be nonnull", key)
+        if (innerKey !is String) writingError("Only String type of map keys is supported", key)
+        innerValues[innerKey] = toJson(innerValue, innerType, omitNulls, innerKey)
+    }
+    return JsonObject(value = innerValues)
+}
+
+private fun iterableToJson(value: Iterable<*>, type: KType?, key: String?, omitNulls: Boolean): JsonArray {
+    val innerType = type?.arguments?.firstOrNull()?.type
+    val innerValues = value.map { item -> toJson(item, innerType, omitNulls, key) }
+    return JsonArray(value = innerValues)
+}
+
+private fun objectToJson(value: Any, type: KType?, key: String?, omitNulls: Boolean): Json {
+    val kClass = (type?.classifier as? KClass<*>)
+        ?: writingError("Cannot get class of serializing object", key)
+    ensureMarkerInterfaceImplemented(kClass, key)
+    val mapper = kClass.getCompanionObject() as? JsonMapper<*>
+    return if (mapper != null) {
+        mapper::toJson.allowAccessAndCall(value)
+    } else {
+        val properties = value::class.getPropertiesInDeclarationOrderIfPossible()
+        val values = mutableMapOf<String, Json>()
+        for (property in properties) {
+            val skipAnnotation = property.findAnnotation<JsonSkip>()
+            if (skipAnnotation != null) continue
+            val propertyValue = property.allowAccessAndCall(value)
+            if (propertyValue == null && omitNulls) continue
+            val nameAnnotation = property.findAnnotation<JsonName>()
+            val innerKey = nameAnnotation?.name ?: property.name
+            values[innerKey] = toJson(propertyValue, property.returnType, omitNulls, innerKey)
         }
+        JsonObject(value = values)
     }
 }
 

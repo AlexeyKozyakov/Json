@@ -190,9 +190,8 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
             ?: parameter.name
             ?: error("Constructor parameter name or JsonName annotation is required in class ${kClass.simpleName}")
         val innerJson = json.obj().value[innerKey]
-        val value = if (innerJson != null) fromJson(innerJson, parameter.type, key = innerKey) else null
         if (innerJson != null) {
-            args[parameter] = value
+            args[parameter] = fromJson(innerJson, parameter.type, key = innerKey)
         } else {
             when {
                 parameter.isOptional -> Unit

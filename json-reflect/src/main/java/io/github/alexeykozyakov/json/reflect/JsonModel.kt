@@ -5,6 +5,6 @@ package io.github.alexeykozyakov.json.reflect
  * class is used as JSON model.
  * Added to disable some code optimizations for DTO classes in
  * builds where ProGuard or R8 is used to ensure that
- * reflection JSON mapping will work fine.
+ * reflective JSON mapping will work fine.
  */
 interface JsonModel

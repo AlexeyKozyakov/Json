@@ -104,7 +104,7 @@ val json = user.toJson()
 - `@JsonName` annotation changes field or enum constant name in resulting JSON
 - `@JsonSkip` annotation allows to skip serialization for some properties
 - default constructor parameters is used when value for given key is not provided in JSON
-- for nullable types null is used if default value is not provided
+- for nullable types `null` is used if default value is not provided
 ```kotlin
 data class User(
     @JsonName("first_name")

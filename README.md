@@ -176,7 +176,7 @@ println(shapes)
 // [Rectangle(width=10, height=20), Circle(radius=5)]
 ```
 ### Usage on android
-If you are using json-reflect library on android, make sure that you DTO classes
+If you are using json-reflect library on android, make sure that you DTO classes and enums
 implement marker interface JsonModel.
 Library supplies its own `consumer-proguard-rules.pro` that disable some R8 optimizations
 specifically for classes that implement `JsonModel` interface to ensure that reflection

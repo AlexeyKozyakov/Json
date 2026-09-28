@@ -19,7 +19,7 @@ mavenPublishing {
 
     pom {
         name = "Json"
-        description = "Simple and convenient JSON parser for kotlin"
+        description = "Lightweight Kotlin/JVM JSON parser with a direct JSON representation."
     }
 }
 dependencies {

@@ -20,7 +20,7 @@ mavenPublishing {
 
     pom {
         name = "Json Reflect"
-        description = "Extended version of kotlin JSON parser which uses reflection under the hood"
+        description = "Lightweight Kotlin/JVM JSON parser with a direct JSON representation and reflection-based mapping."
     }
 }
 

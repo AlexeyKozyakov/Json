@@ -5,6 +5,8 @@ fun main() {
         {
           "id": 12345,
           "username": "alexey",
+          "first_name": "Alexey",
+          "last_name": "Kozyakov",
           "email": "alexey@example.com",
           "active": true,
           "age": 28,

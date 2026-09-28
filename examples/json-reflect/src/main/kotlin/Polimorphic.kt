@@ -2,13 +2,14 @@ import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.accessors.string
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.JsonMapper
+import io.github.alexeykozyakov.json.reflect.JsonModel
 import io.github.alexeykozyakov.json.reflect.parser.fromJson
 import io.github.alexeykozyakov.json.reflect.parser.fromJsonRepresentation
 import io.github.alexeykozyakov.json.reflect.writer.toJson
 import io.github.alexeykozyakov.json.reflect.writer.toJsonRepresentation
 import io.github.alexeykozyakov.json.representation.Json
 
-sealed interface Shape {
+sealed interface Shape: JsonModel {
     companion object : JsonMapper<Shape> {
         override fun toJson(value: Shape): Json {
             return when (value) {

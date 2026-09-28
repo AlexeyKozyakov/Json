@@ -5,6 +5,8 @@ fun main() {
     val user = User(
         id = 12345,
         username = "alexey",
+        firstName = "Alexey",
+        lastName = "Kozyakov",
         email = "alexey@example.com",
         active = true,
         age = 28,
@@ -156,7 +158,8 @@ fun main() {
         arbitraryObject = jsonObj {
             int("code", 67)
             string("data", "six seven")
-        }
+        },
+        skippableValue = 66.6f
     )
 
     val json = user.toJson()

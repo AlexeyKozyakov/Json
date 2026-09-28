@@ -158,7 +158,6 @@ private fun listFromJson(json: Json, type: KType, key: String?): List<Any?> {
 private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
     ensureMarkerInterfaceImplemented(kClass)
     val value = json.string()
-    // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
     val enumConstantField = kClass.java.declaredFields.firstOrNull { field ->
         val nameAnnotation = field.getAnnotation(JsonName::class.java)
         val name = nameAnnotation?.name ?: field.name
@@ -184,7 +183,6 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
     }
     val args = mutableMapOf<KParameter, Any?>()
     for (parameter in constructor.parameters) {
-        // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
         val nameAnnotation = parameter.findAnnotation<JsonName>()
         val innerKey = nameAnnotation?.name
             ?: parameter.name

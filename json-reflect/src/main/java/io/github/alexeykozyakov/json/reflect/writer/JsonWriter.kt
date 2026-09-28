@@ -127,7 +127,6 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean, key: String? = null): 
                     if (skipAnnotation != null) continue
                     val propertyValue = property.allowAccessAndCall(value)
                     if (propertyValue == null && omitNulls) continue
-                    // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
                     val nameAnnotation = property.findAnnotation<JsonName>()
                     val innerKey = nameAnnotation?.name ?: property.name
                     values[innerKey] = toJson(propertyValue, property.returnType, omitNulls, innerKey)

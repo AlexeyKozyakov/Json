@@ -101,8 +101,8 @@ val json = user.toJson()
 // {"name": "Alex", "age": 28 }
 ```
 ### Annotations and default parameters
-- @JsonName annotation sets property or enum constant name to provided value in resulting JSON
-- @JsonSkip annotation allows to skip serialization for some properties
+- `@JsonName` annotation sets property or enum constant name to provided value in resulting JSON
+- `@JsonSkip` annotation allows to skip serialization for some properties
 - default constructor parameters is used when value for given key is not provided in JSON
 ```kotlin
 data class User(

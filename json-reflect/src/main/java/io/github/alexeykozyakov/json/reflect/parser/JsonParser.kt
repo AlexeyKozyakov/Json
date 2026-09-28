@@ -159,7 +159,8 @@ private fun enumFromJson(json: Json, kClass: KClass<*>): Any {
     val value = json.string()
     // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
     val enumConstantField = kClass.java.declaredFields.firstOrNull { field ->
-        val name = field.getAnnotation(JsonName::class.java)?.name ?: field.name
+        val annotation = field.getAnnotation(JsonField::class.java)
+        val name = annotation?.name?.takeIf { it.isNotEmpty() } ?: field.name
         name == value
     } ?: error("Cannot find enum constant with name $value")
     if (!enumConstantField.trySetAccessible()) error("Cannot access enum constants of class ${kClass.simpleName}")
@@ -182,7 +183,8 @@ private fun objectFromJson(json: Json, kClass: KClass<*>): Any {
     val args = mutableMapOf<KParameter, Any?>()
     for (parameter in constructor.parameters) {
         // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
-        val innerKey = parameter.findAnnotation<JsonName>()?.name
+        val annotation = parameter.findAnnotation<JsonField>()
+        val innerKey = annotation?.name?.takeIf { it.isNotEmpty() }
             ?: parameter.name
             ?: error("Constructor parameter name or JsonName annotation is required in class ${kClass.simpleName}")
         val innerJson = json.obj().value[innerKey]

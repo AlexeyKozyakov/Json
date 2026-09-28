@@ -3,7 +3,7 @@ package io.github.alexeykozyakov.json.reflect.writer
 import io.github.alexeykozyakov.json.accessors.obj
 import io.github.alexeykozyakov.json.builder.jsonObj
 import io.github.alexeykozyakov.json.reflect.JsonMapper
-import io.github.alexeykozyakov.json.reflect.JsonName
+import io.github.alexeykozyakov.json.reflect.JsonField
 import io.github.alexeykozyakov.json.representation.Json
 import io.github.alexeykozyakov.json.representation.JsonObject
 import org.junit.Assert
@@ -592,7 +592,7 @@ class JsonWriterTest {
 
     private enum class AnnotatedEnum {
         One,
-        @JsonName("annotated")
+        @JsonField("annotated")
         Two,
         Three
     }
@@ -624,9 +624,9 @@ class JsonWriterTest {
     @Test
     fun writeClassWithAnnotatedNamedFieldToJson() {
         data class Data(
-            @JsonName("first_name")
+            @JsonField("first_name")
             val firstName: String,
-            @JsonName("second_name")
+            @JsonField("second_name")
             val secondName: String,
             val age: Int
         )
@@ -644,6 +644,35 @@ class JsonWriterTest {
                 "first_name": "Ivan",
                 "second_name": "Popov",
                 "age": 23
+            }
+        """.trimIndent()
+
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun skipFieldIfSkipParameterIsSetInAnnotation() {
+        data class Data(
+            @JsonField("first_name")
+            val firstName: String,
+            @JsonField("second_name")
+            val secondName: String,
+            @JsonField(skip = true)
+            val age: Int
+        )
+
+        val data = Data(
+            firstName = "Ivan",
+            secondName = "Popov",
+            age = 23
+        )
+
+        val actual = data.toJson()
+
+        val expected = """
+            {
+                "first_name": "Ivan",
+                "second_name": "Popov"
             }
         """.trimIndent()
 

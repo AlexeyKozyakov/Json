@@ -1,7 +1,7 @@
 package io.github.alexeykozyakov.json.reflect.writer
 
 import io.github.alexeykozyakov.json.reflect.JsonMapper
-import io.github.alexeykozyakov.json.reflect.JsonName
+import io.github.alexeykozyakov.json.reflect.JsonField
 import io.github.alexeykozyakov.json.reflect.allowAccessAndCall
 import io.github.alexeykozyakov.json.reflect.getCompanionObject
 import io.github.alexeykozyakov.json.reflect.getPropertiesInDeclarationOrderIfPossible
@@ -79,8 +79,9 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
         is Boolean -> JsonBoolean(value)
 
         is Enum<*> -> {
-            val name = value::class.java.getDeclaredField(value.name)
-                .getAnnotation(JsonName::class.java)?.name ?: value.name
+            val field = value::class.java.getDeclaredField(value.name)
+            val annotation = field.getAnnotation(JsonField::class.java)
+            val name = annotation?.name?.takeIf { it.isNotEmpty() } ?: value.name
             JsonString(name)
         }
 
@@ -119,10 +120,12 @@ fun toJson(value: Any?, type: KType?, omitNulls: Boolean): Json {
                 val properties = value::class.getPropertiesInDeclarationOrderIfPossible()
                 val values = mutableMapOf<String, Json>()
                 for (property in properties) {
+                    val annotation = property.findAnnotation<JsonField>()
+                    if (annotation != null && annotation.skip) continue
                     val propertyValue = property.allowAccessAndCall(value)
                     if (propertyValue == null && omitNulls) continue
                     // TODO: WARNING! Usage of names from code by reflection, unexpected behaviour with R8 obfuscation.
-                    val name = property.findAnnotation<JsonName>()?.name ?: property.name
+                    val name = annotation?.name?.takeIf { it.isNotEmpty() } ?: property.name
                     values[name] = toJson(propertyValue, property.returnType, omitNulls)
                 }
                 JsonObject(value = values)

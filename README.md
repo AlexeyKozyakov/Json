@@ -179,10 +179,10 @@ println(shapes)
 If you are using json-reflect library on android, make sure that you DTO classes
 implement marker interface JsonModel.
 Library supplies its own `consumer-proguard-rules.pro` that disable some R8 optimizations
-specifically for classes that implement JsonModel interface to ensure that reflection
+specifically for classes that implement `JsonModel` interface to ensure that reflection
 will work fine.
 Library automatically checks if it is used in android environment and
-throws error, when user tries to use classes without JsonModel interface.
+throws error, when user tries to use classes without `JsonModel` interface.
 ```kotlin
 data class User(val name: String, val age: Int): JsonModel
 

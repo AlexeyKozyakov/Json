@@ -100,10 +100,11 @@ val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
 val json = user.toJson()
 // {"name": "Alex", "age": 28 }
 ```
-### Annotations and default parameters
-- `@JsonName` annotation sets property or enum constant name to provided value in resulting JSON
+### Annotations, default parameters and nullability
+- `@JsonName` annotation changes field or enum constant name in resulting JSON
 - `@JsonSkip` annotation allows to skip serialization for some properties
 - default constructor parameters is used when value for given key is not provided in JSON
+- for nullable types null is used if default value is not provided
 ```kotlin
 data class User(
     @JsonName("first_name")
@@ -175,14 +176,14 @@ val shapes = fromJson<List<Shape>>(
 println(shapes)
 // [Rectangle(width=10, height=20), Circle(radius=5)]
 ```
-### Usage on android
-If you are using json-reflect library on android, make sure that you DTO classes and enums
-implement marker interface JsonModel.
+### Usage in android applications
+If you are using json-reflect library in android application, make sure that you DTO classes and enums
+implement JsonModel marker interface.
 Library supplies its own `consumer-proguard-rules.pro` that disable some R8 optimizations
 specifically for classes that implement `JsonModel` interface to ensure that reflection
 will work fine.
 Library automatically checks if it is used in android environment and
-throws error, when user tries to use classes without `JsonModel` interface.
+throws error, when user tries to use DTO classes without implementing `JsonModel` interface.
 ```kotlin
 data class User(val name: String, val age: Int): JsonModel
 

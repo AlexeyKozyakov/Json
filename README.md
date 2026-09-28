@@ -94,9 +94,32 @@ data class User(
 
 // Parse json
 val user = fromJson<User>("""{"name": "Alex", "age": 28 }""")
+// User(name="Alex", age=28")
 
 // Write json to string
 val json = user.toJson()
+// {"name": "Alex", "age": 28 }
+```
+### Annotations and default parameters
+- @JsonName annotation sets property or enum constant name to provided value in resulting JSON
+- @JsonSkip annotation allows to skip serialization for some properties
+- default constructor parameters is used when value for given key is not provided in JSON
+```kotlin
+data class User(
+    @JsonName("first_name")
+    val firstName: String,
+    @JsonName("last_name")
+    val lastName: Int,
+    @JsonSkip
+    val age: Int,
+    val description: String = "default"
+)
+
+val user = fromJson<User>("""{"first_name": "Alex", "last_name": "Kozyakov", "age": 28 }""")
+// User(firstName="Alex", lastName = "Kozyakov", age=28", description = "default")
+
+val json = user.toJson()
+// { "first_name": "Alex", "last_name": "Kozyakov", "description": "default"}
 ```
 ### Custom JSON mappers
 In some cases mapping based on primary constructors and class properties is not enough.

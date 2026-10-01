@@ -33,14 +33,14 @@ Features:
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json.svg)](https://central.sonatype.com/artifact/io.github.alexeykozyakov.json/json)
 ```kotlin
 dependencies {
-    implementation("io.github.alexeykozyakov.json:json:1.0.10")
+    implementation("io.github.alexeykozyakov.json:json:1.0.11")
 }
 ```
 ### json-reflect
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexeykozyakov.json/json-reflect.svg)](https://central.sonatype.com/artifact/io.github.alexeykozyakov.json/json-reflect)
 ```kotlin
 dependencies {
-    implementation("io.github.alexeykozyakov.json:json-reflect:1.0.10")
+    implementation("io.github.alexeykozyakov.json:json-reflect:1.0.11")
 }
 ```
 ## Quick start

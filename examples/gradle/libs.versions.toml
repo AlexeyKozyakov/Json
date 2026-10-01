@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.20"
-json = "1.0.10"
+json = "1.0.11"
 
 [libraries]
 json = { module = "io.github.alexeykozyakov.json:json", version.ref = "json"}
